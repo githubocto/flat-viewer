@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body,
+html {
+  height: 100%;
+}
+
+body,
+#root {
+  @apply bg-gray-100 flex flex-col h-full;
+}
