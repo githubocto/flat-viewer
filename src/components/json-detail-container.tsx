@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 
 import { SHAPicker } from "./sha-picker";
-import { useCommits, useDataFile } from "../hooks";
+import { useCommits, useDataFile, useProgressBar } from "../hooks";
+import { LoadingState } from "./loading-state";
+import { ErrorState } from "./error-state";
+import MeowCode from "../meow_code.gif";
 
 interface JSONDetailContainerProps {
   filename: string;
@@ -18,19 +21,29 @@ interface JSONDetailProps {
 
 function JSONDetail(props: JSONDetailProps) {
   const { sha, filename, owner, name } = props;
-  const { data, isLoading, isSuccess, isError } = useDataFile({
+  const queryResult = useDataFile({
     sha,
     filename,
     owner,
     name,
   });
 
+  useProgressBar(queryResult);
+
+  const { data, isLoading, isSuccess, isError } = queryResult;
+
   const parsed = data ? JSON.parse(data) : "";
 
   return (
     <React.Fragment>
-      {isError && <div>Error while loading file :(</div>}
-      {isLoading && <div>Loading file...</div>}
+      {isError && (
+        <ErrorState img={MeowCode}>
+          Oh no, we couldn't load{" "}
+          <em className="text-underline font-normal">{filename}</em> for some
+          reason.
+        </ErrorState>
+      )}
+      {isLoading && <LoadingState text="Loading data..." />}
       {isSuccess && data && (
         <div className="h-full overflow-auto p-4 font-mono text-xs p-4">
           <pre>{JSON.stringify(parsed, null, 2)}</pre>
@@ -62,8 +75,14 @@ export function JSONDetailContainer(props: JSONDetailContainerProps) {
 
   return (
     <React.Fragment>
-      {isLoading && <div>Loading details for {filename}</div>}
-      {isError && <div>Failed toloading details for {filename}</div>}
+      {isLoading && <LoadingState text={`Loading details for ${filename}`} />}
+      {isError && (
+        <ErrorState img={MeowCode}>
+          Oh no, we couldn't load{" "}
+          <em className="text-underline font-normal">{filename}</em> for some
+          reason.
+        </ErrorState>
+      )}
       {isSuccess && data && (
         <React.Fragment>
           <div className="p-4 bg-white border-b border-gray-200">

@@ -1,5 +1,5 @@
-import { useQuery, UseQueryOptions } from "react-query";
-import { Endpoints } from "@octokit/types";
+import { useQuery, UseQueryOptions, UseQueryResult } from "react-query";
+import nprogress from "nprogress";
 
 import {
   fetchCommits,
@@ -10,6 +10,7 @@ import {
   listCommitsResponse,
 } from "../api";
 import { Repo } from "../types";
+import React from "react";
 
 // Hooks
 export function useFlatYaml(repo: Repo) {
@@ -36,4 +37,16 @@ export function useDataFile(params: FileParamsWithSHA) {
     retry: false,
     refetchOnWindowFocus: false,
   });
+}
+
+nprogress.configure({ showSpinner: false });
+
+export function useProgressBar(result: UseQueryResult) {
+  React.useEffect(() => {
+    if (result.isLoading) {
+      nprogress.start();
+    } else if (result.isSuccess || result.isError) {
+      nprogress.done();
+    }
+  }, [result]);
 }

@@ -42,7 +42,12 @@ export function fetchCommits(params: FileParams) {
     .url(`https://api.github.com/repos/${owner}/${name}/commits`)
     .query({ path: filename })
     .get()
-    .json<listCommitsResponse["data"]>();
+    .json<listCommitsResponse["data"]>((res: any) => {
+      if (res.length === 0) {
+        throw new Error("No commits for this file.");
+      }
+      return res;
+    });
 }
 
 export function fetchDataFile(params: FileParamsWithSHA) {

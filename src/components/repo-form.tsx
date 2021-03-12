@@ -19,7 +19,7 @@ const validationSchema = object().shape({
 function RepoFormComponent(props: FormikProps<Repo>) {
   const makeFieldClass = (name: keyof Repo, index: number) =>
     cc([
-      `appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:z-10 sm:text-sm`,
+      `appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:z-10 text-sm`,
       {
         "border-red-200 bg-red-50 focus:ring-red-500 focus:border-red-500": Boolean(
           props.errors[name]
@@ -86,7 +86,7 @@ function RepoFormComponent(props: FormikProps<Repo>) {
           <div className="flex items-center space-x-2">
             <Link
               to="/githubocto/flat-foo-demo"
-              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-900 text-white font-mono  "
+              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-900 hover:bg-gray-700 text-white font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               githubocto/flat-foo-demo
             </Link>
