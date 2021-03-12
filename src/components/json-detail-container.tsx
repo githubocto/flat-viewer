@@ -76,14 +76,14 @@ export function JSONDetailContainer(props: JSONDetailContainerProps) {
             </div>
           </div>
           <div className="flex-1 overflow-hidden">
-            {/* {selectedSha && (
+            {selectedSha && (
               <JSONDetail
                 filename={filename}
                 owner={owner as string}
                 name={name as string}
                 sha={selectedSha}
               />
-            )} */}
+            )}
           </div>
         </React.Fragment>
       )}

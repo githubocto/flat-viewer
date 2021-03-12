@@ -3,6 +3,7 @@ import { useSelect, UseSelectStateChange } from "downshift";
 import { ChevronDownIcon, CommitIcon, CheckIcon } from "@primer/octicons-react";
 import { usePopper } from "react-popper";
 import cc from "classcat";
+import formatDistance from "date-fns/formatDistance";
 
 import { Commit } from "../types";
 
@@ -141,13 +142,21 @@ export function SHAPicker(props: SHAPickerProps) {
                               "Committer avatar"
                             }
                           />
-                          <p className="text-xs font-medium">
-                            {augmentedValue?.commit.author?.name}
+                          <p className="text-xs">
+                            <span className="font-medium">
+                              {augmentedValue?.commit.author?.name}
+                            </span>
+                            <span className="ml-1">
+                              {formatDistance(
+                                new Date(
+                                  augmentedValue?.commit.author?.date || ""
+                                ),
+                                new Date(),
+                                { addSuffix: true }
+                              )}
+                            </span>
                           </p>
                         </div>
-                        <span className="font-mono text-xs opacity-75">
-                          {item.substring(0, 7)}
-                        </span>
                       </div>
                     </div>
                   </div>
