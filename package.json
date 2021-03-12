@@ -13,13 +13,15 @@
     "classcat": "^5.0.3",
     "date-fns": "^2.19.0",
     "downshift": "^6.1.0",
+    "formik": "^2.2.6",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-popper": "^2.2.4",
     "react-query": "^3.12.1",
     "react-router-dom": "^5.2.0",
     "wretch": "^1.7.4",
-    "yaml": "^1.10.0"
+    "yaml": "^1.10.0",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@octokit/types": "^6.12.2",
