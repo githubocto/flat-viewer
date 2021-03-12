@@ -8,9 +8,13 @@
   },
   "dependencies": {
     "@octokit/rest": "^18.3.5",
+    "@popperjs/core": "^2.9.1",
     "@primer/octicons-react": "^12.1.0",
+    "classcat": "^5.0.3",
+    "downshift": "^6.1.0",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
+    "react-popper": "^2.2.4",
     "react-query": "^3.12.1",
     "react-router-dom": "^5.2.0",
     "wretch": "^1.7.4",
