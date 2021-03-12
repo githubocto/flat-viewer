@@ -67,6 +67,14 @@ export function SHAPicker(props: SHAPickerProps) {
     }
   }, [isOpen, forceUpdate]);
 
+  const augmentSha = React.useCallback(
+    (sha?: string) => {
+      if (!sha) return null;
+      return commits.find((commit) => commit.sha === sha);
+    },
+    [commits]
+  );
+
   return (
     <div className="relative" ref={setReferenceElement}>
       <label className="sr-only" {...getLabelProps()}>
@@ -79,7 +87,9 @@ export function SHAPicker(props: SHAPickerProps) {
       >
         <div className="flex items-center space-x-2">
           <CommitIcon />
-          <span className="block truncate font-mono">{value}</span>
+          <span className="block truncate">
+            <span>{augmentSha(value)?.commit.message}</span>
+          </span>
         </div>
         <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
           <ChevronDownIcon />
@@ -104,6 +114,8 @@ export function SHAPicker(props: SHAPickerProps) {
             {items.map((item, index) => {
               const isHighlighted = highlightedIndex === index;
               const isSelected = value === item;
+              const augmentedValue = augmentSha(item);
+
               return (
                 <li
                   className={cc([
@@ -116,17 +128,29 @@ export function SHAPicker(props: SHAPickerProps) {
                   key={`${item}${index}`}
                   {...getItemProps({ item, index })}
                 >
-                  <span
-                    className={cc([
-                      "block truncate font-mono text-sm",
-                      {
-                        "font-normal": !isSelected,
-                        "font-semibold": isSelected,
-                      },
-                    ])}
-                  >
-                    {item}
-                  </span>
+                  <div className={cc(["block truncate text-sm font-normal"])}>
+                    <div className="flex flex-col space-y-2">
+                      <span>{augmentedValue?.commit.message}</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <img
+                            className="w-4 h-4 rounded-full"
+                            src={`https://github.com/${augmentedValue?.commit.author?.name}.png`}
+                            alt={
+                              augmentedValue?.commit.author?.name ||
+                              "Committer avatar"
+                            }
+                          />
+                          <p className="text-xs font-medium">
+                            {augmentedValue?.commit.author?.name}
+                          </p>
+                        </div>
+                        <span className="font-mono text-xs opacity-75">
+                          {item.substring(0, 7)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
 
                   {value === item && (
                     <span
