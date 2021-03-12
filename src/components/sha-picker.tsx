@@ -98,7 +98,7 @@ export function SHAPicker(props: SHAPickerProps) {
       </button>
       <div
         className={cc([
-          "w-full bg-white z-10",
+          "w-full bg-white z-10 m-0",
           {
             "sr-only": !isOpen,
           },
