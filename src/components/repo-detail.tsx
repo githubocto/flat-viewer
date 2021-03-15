@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps, Link } from "react-router-dom";
 
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
@@ -45,9 +45,12 @@ export function RepoDetail(props: RepoDetailProps) {
   return (
     <React.Fragment>
       <div className="bg-white border-b flex">
-        <div className="w-16 h-16 p-2 border-r">
+        <Link
+          to="/"
+          className="block w-16 h-16 p-2 border-r hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+        >
           <img className="w-full h-full" src={FlatLogo} alt="Flat Logo" />
-        </div>
+        </Link>
         <div className="flex items-center justify-center px-4">
           <div>
             <p className="text-xs font-medium text-gray-500">Repository</p>
