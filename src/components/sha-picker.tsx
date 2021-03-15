@@ -6,6 +6,7 @@ import cc from "classcat";
 import formatDistance from "date-fns/formatDistance";
 
 import { Commit } from "../types";
+import { DisplayCommit } from "./display-commit";
 
 interface SHAPickerProps {
   commits: Commit[];
@@ -76,6 +77,8 @@ export function SHAPicker(props: SHAPickerProps) {
     [commits]
   );
 
+  const selectedCommitMessage = augmentSha(value)?.commit.message;
+
   return (
     <div className="relative" ref={setReferenceElement}>
       <label className="sr-only" {...getLabelProps()}>
@@ -84,12 +87,12 @@ export function SHAPicker(props: SHAPickerProps) {
       <button
         type="button"
         {...getToggleButtonProps()}
-        className="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-sm"
+        className="bg-white relative w-full border border-gray-300 rounded-md shadow-sm pl-3 pr-8 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500 text-sm"
       >
         <div className="flex items-center space-x-2">
           <CommitIcon />
           <span className="block truncate">
-            <span>{augmentSha(value)?.commit.message}</span>
+            <DisplayCommit message={selectedCommitMessage} />
           </span>
         </div>
         <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -114,13 +117,12 @@ export function SHAPicker(props: SHAPickerProps) {
           >
             {items.map((item, index) => {
               const isHighlighted = highlightedIndex === index;
-              const isSelected = value === item;
               const augmentedValue = augmentSha(item);
 
               return (
                 <li
                   className={cc([
-                    "cursor-default select-none relative py-2 pl-3 pr-9 text-sm",
+                    "cursor-default select-none relative py-2 pl-3 pr-4 text-sm",
                     {
                       "bg-gray-100": isHighlighted,
                     },
@@ -130,7 +132,7 @@ export function SHAPicker(props: SHAPickerProps) {
                 >
                   <div className={cc(["block truncate text-sm font-normal"])}>
                     <div className="flex flex-col space-y-2">
-                      <span>{augmentedValue?.commit.message}</span>
+                      <DisplayCommit message={augmentedValue?.commit.message} />
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2">
                           <img
@@ -159,20 +161,6 @@ export function SHAPicker(props: SHAPickerProps) {
                       </div>
                     </div>
                   </div>
-
-                  {value === item && (
-                    <span
-                      className={cc([
-                        "absolute inset-y-0 right-0 flex items-center pr-4",
-                        {
-                          "text-gray-500": !isHighlighted,
-                          "text-gray-900": isHighlighted,
-                        },
-                      ])}
-                    >
-                      <CheckIcon />
-                    </span>
-                  )}
                 </li>
               );
             })}

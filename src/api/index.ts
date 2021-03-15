@@ -4,12 +4,6 @@ import { Repo } from "../types";
 
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
-const octokitParams = import.meta.env.DEV
-  ? {
-      auth: import.meta.env.VITE_GITHUB_PAT,
-    }
-  : {};
-
 export function fetchFlatYaml(repo: Repo) {
   return wretch()
     .url(
@@ -26,7 +20,7 @@ export function fetchFlatYaml(repo: Repo) {
 }
 
 export interface FileParams {
-  filename: string;
+  filename?: string;
   owner: string;
   name: string;
 }
