@@ -30,3 +30,34 @@ body,
   border-top-color: black !important;
   border-left-color: black !important;
 }
+
+.skeleton {
+  animation: skeleton-glow 1s linear infinite alternate;
+  background: rgba(206, 217, 224, 0.2);
+  background-clip: padding-box !important;
+  border-color: rgba(206, 217, 224, 0.2) !important;
+  border-radius: 2px;
+  box-shadow: none !important;
+  color: transparent !important;
+  cursor: default;
+  pointer-events: none;
+  user-select: none;
+}
+
+.skeleton *,
+.skeleton:after,
+.skeleton:before {
+  visibility: hidden !important;
+}
+
+@keyframes skeleton-glow {
+  0% {
+    background: rgba(206, 217, 224, 0.2);
+    border-color: rgba(206, 217, 224, 0.2);
+  }
+
+  to {
+    background: rgba(92, 112, 128, 0.2);
+    border-color: rgba(92, 112, 128, 0.2);
+  }
+}
