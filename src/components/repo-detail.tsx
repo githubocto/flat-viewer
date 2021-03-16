@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { RouteComponentProps, Link } from "react-router-dom";
+import formatDistance from "date-fns/formatDistance";
 
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
@@ -7,16 +8,19 @@ import { Repo } from "../types";
 import MeowEmoji from "../meow_huh.png";
 import FlatLogo from "../flat.svg";
 
-import { SHAPicker } from "./sha-picker";
 import { JSONDetail } from "./json-detail-container";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
 import { parseFlatCommitMessage } from "../lib";
+import { Picker } from "./picker";
+import { CommitIcon } from "@primer/octicons-react";
+import { DisplayCommit } from "./display-commit";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
 export function RepoDetail(props: RepoDetailProps) {
-  const [selectedSha, setSelectedSha] = useState<string>();
+  const [selectedSha, setSelectedSha] = React.useState<string>();
+  const filePickerRef = React.useRef<HTMLDivElement>(null);
 
   const { match } = props;
   const { owner, name } = match.params;
@@ -81,22 +85,61 @@ export function RepoDetail(props: RepoDetailProps) {
           {yamlQueryStatus === "success" &&
             commitQueryStatus === "success" &&
             commits && (
-              <SHAPicker
+              <Picker<string>
+                placeholder="Select a SHA"
                 onChange={setSelectedSha}
                 value={selectedSha}
-                commits={commits}
+                items={commits.map((commit) => commit.sha)}
+                itemRenderer={(sha) => {
+                  const commit = commits.find((commit) => commit.sha === sha);
+                  return (
+                    <div className="flex flex-col space-y-2">
+                      <DisplayCommit message={commit?.commit.message} />
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <p className="text-xs">
+                            {formatDistance(
+                              new Date(commit?.commit.author?.date || ""),
+                              new Date(),
+                              { addSuffix: true }
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }}
+                selectedItemRenderer={(sha) => (
+                  <div className="flex items-center space-x-2">
+                    <CommitIcon />
+                    <span className="block truncate">
+                      <DisplayCommit
+                        message={
+                          commits.find((commit) => commit.sha === sha)?.commit
+                            .message
+                        }
+                      />
+                    </span>
+                  </div>
+                )}
               />
             )}
         </div>
+        <div
+          className="flex items-center justify-center px-4 border-l border-gray"
+          ref={filePickerRef}
+        ></div>
       </div>
       <React.Fragment>
         {yamlQueryStatus === "loading" && <LoadingState />}
         {yamlQueryStatus === "success" && selectedSha && parsedCommit && (
           <JSONDetail
+            key={selectedSha}
             filename={parsedCommit.file.name}
             owner={owner as string}
             name={name as string}
             sha={selectedSha}
+            filePickerRef={filePickerRef}
           />
         )}
         {yamlQueryStatus === "error" ||
