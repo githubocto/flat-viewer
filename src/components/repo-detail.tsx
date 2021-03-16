@@ -58,7 +58,7 @@ export function RepoDetail(props: RepoDetailProps) {
       <div className="bg-white border-b flex">
         <Link
           to="/"
-          className="block w-16 h-16 p-2 border-r hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          className="flex h-full w-16 h-16 p-2 border-r hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
           <img className="w-full h-full" src={FlatLogo} alt="Flat Logo" />
         </Link>
@@ -77,7 +77,7 @@ export function RepoDetail(props: RepoDetailProps) {
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-center px-4 border-l border-gray">
+        <div className="flex items-center justify-center px-4 border-l border-gray py-2">
           {yamlQueryStatus === "loading" ||
             (commitQueryStatus === "loading" && (
               <div className="w-48 h-6 skeleton"></div>
@@ -86,6 +86,7 @@ export function RepoDetail(props: RepoDetailProps) {
             commitQueryStatus === "success" &&
             commits && (
               <Picker<string>
+                label="Choose a SHA"
                 placeholder="Select a SHA"
                 onChange={setSelectedSha}
                 value={selectedSha}
@@ -126,7 +127,7 @@ export function RepoDetail(props: RepoDetailProps) {
             )}
         </div>
         <div
-          className="flex items-center justify-center px-4 border-l border-gray"
+          className="flex items-center justify-center px-4 border-l border-gray py-2"
           ref={filePickerRef}
         ></div>
       </div>

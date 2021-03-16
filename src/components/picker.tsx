@@ -5,6 +5,7 @@ import { ChevronDownIcon } from "@primer/octicons-react";
 import cc from "classcat";
 
 interface PickerProps<Item> {
+  label?: string;
   placeholder: string;
   items: Item[];
   value?: Item;
@@ -21,6 +22,7 @@ export function Picker<Item>(props: PickerProps<Item>) {
     itemRenderer,
     selectedItemRenderer,
     placeholder,
+    label,
   } = props;
 
   const handleSelectedItemChange = (changes: UseSelectStateChange<Item>) => {
@@ -75,61 +77,70 @@ export function Picker<Item>(props: PickerProps<Item>) {
   }, [isOpen, forceUpdate]);
 
   return (
-    <div className="relative" ref={setReferenceElement}>
-      <label className="sr-only" {...getLabelProps()}>
-        Choose a commit
-      </label>
-      <button
-        type="button"
-        {...getToggleButtonProps()}
-        className="bg-white relative w-full border border-gray-300 rounded-md shadow-sm h-9 pl-3 pr-8 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-400 text-xs"
-      >
-        {value ? (
-          selectedItemRenderer(value)
-        ) : (
-          <span className="text-gray-600">{placeholder}</span>
-        )}
-      </button>
-      <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-        <ChevronDownIcon />
-      </span>
-      <div
-        className={cc([
-          "w-full bg-white z-10 m-0",
-          {
-            "sr-only": !isOpen,
-          },
-        ])}
-        style={styles.popper}
-        ref={setPopperElement}
-        {...attributes.popper}
-      >
-        <div className="w-full rounded-md bg-white shadow-lg max-h-48">
-          <ul
-            className="rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm max-h-48 overflow-auto"
-            {...getMenuProps()}
+    <div>
+      {label && (
+        <div className="mb-1">
+          <label
+            className="text-xs text-gray-500 font-medium"
+            {...getLabelProps()}
           >
-            {items.map((item, index) => {
-              const isHighlighted = highlightedIndex === index;
+            {label}
+          </label>
+        </div>
+      )}
+      <div className="relative" ref={setReferenceElement}>
+        <button
+          type="button"
+          {...getToggleButtonProps()}
+          className="bg-white relative w-full border border-gray-300 rounded-md shadow-sm h-9 pl-3 pr-8 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-400 text-xs"
+        >
+          {value ? (
+            selectedItemRenderer(value)
+          ) : (
+            <span className="text-gray-600">{placeholder}</span>
+          )}
+        </button>
+        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+          <ChevronDownIcon />
+        </span>
+        <div
+          className={cc([
+            "w-full bg-white z-10 m-0",
+            {
+              "sr-only": !isOpen,
+            },
+          ])}
+          style={styles.popper}
+          ref={setPopperElement}
+          {...attributes.popper}
+        >
+          <div className="w-full rounded-md bg-white shadow-lg max-h-48">
+            <ul
+              className="rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm max-h-48 overflow-auto"
+              {...getMenuProps()}
+            >
+              {items.map((item, index) => {
+                const isHighlighted = highlightedIndex === index;
 
-              return (
-                <li
-                  className={cc([
-                    "cursor-default select-none relative py-2 pl-3 pr-4 text-sm",
-                    {
-                      "bg-gray-100": isHighlighted,
-                    },
-                  ])}
-                  key={`${item}${index}`}
-                  {...getItemProps({ item, index })}
-                >
-                  <div className={cc(["block truncate text-xs text-left"])}>
-                    {itemRenderer(item)}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                return (
+                  <li
+                    className={cc([
+                      "cursor-default select-none relative py-2 pl-3 pr-4 text-sm",
+                      {
+                        "bg-gray-100": isHighlighted,
+                      },
+                    ])}
+                    key={`${item}${index}`}
+                    {...getItemProps({ item, index })}
+                  >
+                    <div className={cc(["block truncate text-xs text-left"])}>
+                      {itemRenderer(item)}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       </div>
     </div>

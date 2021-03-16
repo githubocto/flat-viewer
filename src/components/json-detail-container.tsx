@@ -57,6 +57,7 @@ export function JSONDetail(props: JSONDetailProps) {
           {showKeyPicker && (
             <Portal node={filePickerRef?.current}>
               <Picker<string>
+                label="Choose a key"
                 items={validKeys}
                 value={dataKey}
                 onChange={setDataKey}
