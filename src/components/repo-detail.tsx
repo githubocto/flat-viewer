@@ -11,6 +11,7 @@ import { SHAPicker } from "./sha-picker";
 import { JSONDetail } from "./json-detail-container";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
+import { parseFlatCommitMessage } from "../lib";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
@@ -22,13 +23,13 @@ export function RepoDetail(props: RepoDetailProps) {
 
   // Hook for fetching flat YAML config
   const yamlQueryResult = useFlatYaml({ owner, name });
-  const { data: filename, status: yamlQueryStatus } = yamlQueryResult;
+  const { data: isFlatRepo, status: yamlQueryStatus } = yamlQueryResult;
 
   // Hook for fetching commits, once we've determined this is a Flat repo.
-  const { data: commits, status: commitQueryStatus } = useCommits(
-    { owner, name, filename },
+  const { data: commits = [], status: commitQueryStatus } = useCommits(
+    { owner, name },
     {
-      enabled: Boolean(filename),
+      enabled: isFlatRepo,
       onSuccess: (commits) => {
         if (commits.length > 0) {
           const mostRecentCommitSha = commits[0].sha;
@@ -41,6 +42,12 @@ export function RepoDetail(props: RepoDetailProps) {
   useProgressBar(yamlQueryResult);
 
   const repoUrl = `https://github.com/${owner}/${name}`;
+
+  const parsedCommit = selectedSha
+    ? parseFlatCommitMessage(
+        commits?.find((commit) => commit.sha === selectedSha)?.commit.message
+      )
+    : null;
 
   return (
     <React.Fragment>
@@ -84,20 +91,21 @@ export function RepoDetail(props: RepoDetailProps) {
       </div>
       <React.Fragment>
         {yamlQueryStatus === "loading" && <LoadingState />}
-        {yamlQueryStatus === "success" && filename && selectedSha && (
+        {yamlQueryStatus === "success" && selectedSha && parsedCommit && (
           <JSONDetail
-            filename={filename}
+            filename={parsedCommit.file.name}
             owner={owner as string}
             name={name as string}
             sha={selectedSha}
           />
         )}
-        {yamlQueryStatus === "error" && (
-          <ErrorState img={MeowEmoji}>
-            Hmm, we couldn't load any Flat data from this repository. <br /> Are
-            you sure it has a valid Flat action in it?
-          </ErrorState>
-        )}
+        {yamlQueryStatus === "error" ||
+          (commitQueryStatus === "error" && (
+            <ErrorState img={MeowEmoji}>
+              Hmm, we couldn't load any Flat data from this repository. <br />{" "}
+              Are you sure it has a valid Flat action in it?
+            </ErrorState>
+          ))}
       </React.Fragment>
     </React.Fragment>
   );

@@ -5,6 +5,7 @@ import { Repo } from "../types";
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
 export function fetchFlatYaml(repo: Repo) {
+  // Check if flat.yml exists!
   return wretch()
     .url(
       `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/main/.github/workflows/flat.yaml`
@@ -13,9 +14,8 @@ export function fetchFlatYaml(repo: Repo) {
     .notFound(() => {
       throw new Error("Flat YAML not found");
     })
-    .text(() => {
-      // TODO: Find out where data is being stored.
-      return "data.json";
+    .text((yaml) => {
+      return yaml.length > 0;
     });
 }
 
@@ -30,16 +30,17 @@ export interface FileParamsWithSHA extends FileParams {
 }
 
 export function fetchCommits(params: FileParams) {
-  const { filename, name, owner } = params;
+  const { name, owner } = params;
 
   return wretch()
     .url(`https://api.github.com/repos/${owner}/${name}/commits`)
-    .query({ path: filename })
+    .query({ author: "flat-data@users.noreply.github.com" })
     .get()
     .json<listCommitsResponse["data"]>((res: any) => {
       if (res.length === 0) {
-        throw new Error("No commits for this file.");
+        throw new Error("No commits...");
       }
+
       return res;
     });
 }
