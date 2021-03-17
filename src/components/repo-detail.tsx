@@ -98,7 +98,7 @@ export function RepoDetail(props: RepoDetailProps) {
                       <DisplayCommit message={commit?.commit.message} />
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2">
-                          <p className="text-xs">
+                          <p className="text-gray-600">
                             {formatDistance(
                               new Date(commit?.commit.author?.date || ""),
                               new Date(),

@@ -29,7 +29,7 @@ export function DisplayCommit(props: DisplayCommitProps) {
       <span className="text-xs mr-3">{parsed.message}</span>
       <span className={byteClass}>
         <span>{negativeDelta ? "-" : "+"}</span>
-        {Math.abs(parsed.file.deltaBytes)}
+        {Math.abs(parsed.file.deltaBytes)}b
       </span>
     </div>
   );
