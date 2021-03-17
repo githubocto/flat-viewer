@@ -1,6 +1,8 @@
 import React from "react";
-import { RouteComponentProps, Link } from "react-router-dom";
+import { RouteComponentProps, Link, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
+import qs from "query-string";
+import toast, { Toaster } from "react-hot-toast";
 
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
@@ -19,11 +21,22 @@ import { DisplayCommit } from "./display-commit";
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
 export function RepoDetail(props: RepoDetailProps) {
-  const [selectedSha, setSelectedSha] = React.useState<string>();
-  const filePickerRef = React.useRef<HTMLDivElement>(null);
-
   const { match } = props;
   const { owner, name } = match.params;
+
+  const history = useHistory();
+  const parsedQueryString = qs.parse(history.location.search);
+
+  const [selectedSha, setSelectedSha] = React.useState<string>(
+    (parsedQueryString?.sha as string) || ""
+  );
+  const filePickerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (selectedSha) {
+      history.push({ search: qs.stringify({ sha: selectedSha }) });
+    }
+  }, [selectedSha]);
 
   // Hook for fetching flat YAML config
   const yamlQueryResult = useFlatYaml({ owner, name });
@@ -36,8 +49,21 @@ export function RepoDetail(props: RepoDetailProps) {
       enabled: isFlatRepo,
       onSuccess: (commits) => {
         if (commits.length > 0) {
-          const mostRecentCommitSha = commits[0].sha;
-          setSelectedSha(mostRecentCommitSha);
+          console.log("made it!");
+          if (commits.some((commit) => commit.sha === selectedSha)) {
+          } else {
+            toast.error(
+              "Hmm, we couldn't find a commit by that SHA. Reverting to the most recent commit.",
+              {
+                duration: 4000,
+              }
+            );
+            const mostRecentCommitSha = commits[0].sha;
+            history.push({
+              search: qs.stringify({ sha: mostRecentCommitSha }),
+            });
+            setSelectedSha(mostRecentCommitSha);
+          }
         }
       },
     }
@@ -55,6 +81,7 @@ export function RepoDetail(props: RepoDetailProps) {
 
   return (
     <React.Fragment>
+      <Toaster position="bottom-left" />
       <div className="bg-white border-b flex">
         <Link
           to="/"
