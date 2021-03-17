@@ -46,22 +46,28 @@ export function RepoDetail(props: RepoDetailProps) {
   const { data: commits = [], status: commitQueryStatus } = useCommits(
     { owner, name },
     {
-      enabled: isFlatRepo,
+      enabled: isFlatRepo === true,
       onSuccess: (commits) => {
+        const mostRecentCommitSha = commits[0].sha;
+
         if (commits.length > 0) {
-          console.log("made it!");
-          if (commits.some((commit) => commit.sha === selectedSha)) {
+          if (selectedSha) {
+            if (commits.some((commit) => commit.sha === selectedSha)) {
+              // noop
+            } else {
+              toast.error(
+                "Hmm, we couldn't find a commit by that SHA. Reverting to the most recent commit.",
+                {
+                  duration: 4000,
+                }
+              );
+
+              history.push({
+                search: qs.stringify({ sha: mostRecentCommitSha }),
+              });
+              setSelectedSha(mostRecentCommitSha);
+            }
           } else {
-            toast.error(
-              "Hmm, we couldn't find a commit by that SHA. Reverting to the most recent commit.",
-              {
-                duration: 4000,
-              }
-            );
-            const mostRecentCommitSha = commits[0].sha;
-            history.push({
-              search: qs.stringify({ sha: mostRecentCommitSha }),
-            });
             setSelectedSha(mostRecentCommitSha);
           }
         }
@@ -104,55 +110,57 @@ export function RepoDetail(props: RepoDetailProps) {
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-center px-4 border-l border-gray py-2">
-          {yamlQueryStatus === "loading" ||
-            (commitQueryStatus === "loading" && (
-              <div className="w-48 h-6 skeleton"></div>
-            ))}
-          {yamlQueryStatus === "success" &&
-            commitQueryStatus === "success" &&
-            commits && (
-              <Picker<string>
-                label="Choose a SHA"
-                placeholder="Select a SHA"
-                onChange={setSelectedSha}
-                value={selectedSha}
-                items={commits.map((commit) => commit.sha)}
-                itemRenderer={(sha) => {
-                  const commit = commits.find((commit) => commit.sha === sha);
-                  return (
-                    <div className="flex flex-col space-y-2">
-                      <DisplayCommit message={commit?.commit.message} />
-                      <div className="flex items-center space-x-2">
+        {yamlQueryStatus !== "error" && (
+          <div className="flex items-center justify-center px-4 border-l border-gray py-2">
+            {yamlQueryStatus === "loading" ||
+              (commitQueryStatus === "loading" && (
+                <div className="w-48 h-6 skeleton"></div>
+              ))}
+            {yamlQueryStatus === "success" &&
+              commitQueryStatus === "success" &&
+              commits && (
+                <Picker<string>
+                  label="Choose a SHA"
+                  placeholder="Select a SHA"
+                  onChange={setSelectedSha}
+                  value={selectedSha}
+                  items={commits.map((commit) => commit.sha)}
+                  itemRenderer={(sha) => {
+                    const commit = commits.find((commit) => commit.sha === sha);
+                    return (
+                      <div className="flex flex-col space-y-2">
+                        <DisplayCommit message={commit?.commit.message} />
                         <div className="flex items-center space-x-2">
-                          <p className="text-gray-600">
-                            {formatDistance(
-                              new Date(commit?.commit.author?.date || ""),
-                              new Date(),
-                              { addSuffix: true }
-                            )}
-                          </p>
+                          <div className="flex items-center space-x-2">
+                            <p className="text-gray-600">
+                              {formatDistance(
+                                new Date(commit?.commit.author?.date || ""),
+                                new Date(),
+                                { addSuffix: true }
+                              )}
+                            </p>
+                          </div>
                         </div>
                       </div>
+                    );
+                  }}
+                  selectedItemRenderer={(sha) => (
+                    <div className="flex items-center space-x-2">
+                      <CommitIcon />
+                      <span className="block truncate">
+                        <DisplayCommit
+                          message={
+                            commits.find((commit) => commit.sha === sha)?.commit
+                              .message
+                          }
+                        />
+                      </span>
                     </div>
-                  );
-                }}
-                selectedItemRenderer={(sha) => (
-                  <div className="flex items-center space-x-2">
-                    <CommitIcon />
-                    <span className="block truncate">
-                      <DisplayCommit
-                        message={
-                          commits.find((commit) => commit.sha === sha)?.commit
-                            .message
-                        }
-                      />
-                    </span>
-                  </div>
-                )}
-              />
-            )}
-        </div>
+                  )}
+                />
+              )}
+          </div>
+        )}
         <div
           className="flex items-center justify-center px-4 border-l border-gray py-2"
           ref={filePickerRef}
@@ -170,13 +178,12 @@ export function RepoDetail(props: RepoDetailProps) {
             filePickerRef={filePickerRef}
           />
         )}
-        {yamlQueryStatus === "error" ||
-          (commitQueryStatus === "error" && (
-            <ErrorState img={MeowEmoji}>
-              Hmm, we couldn't load any Flat data from this repository. <br />{" "}
-              Are you sure it has a valid Flat action in it?
-            </ErrorState>
-          ))}
+        {yamlQueryStatus === "error" && (
+          <ErrorState img={MeowEmoji}>
+            Hmm, we couldn't load any Flat data from this repository. <br /> Are
+            you sure it has a valid Flat action in it?
+          </ErrorState>
+        )}
       </React.Fragment>
     </React.Fragment>
   );
