@@ -1,5 +1,6 @@
 import React from "react";
 import { Portal } from "react-portal";
+import { Grid } from "flat-ui";
 
 import { useDataFile, useProgressBar } from "../hooks";
 import { LoadingState } from "./loading-state";
@@ -97,9 +98,7 @@ export function JSONDetail(props: JSONDetailProps) {
               </div>
             </EmptyState>
           )}
-          {dataKey && validKeys.length > 0 && (
-            <pre>{JSON.stringify(parsed[dataKey], null, 2)}</pre>
-          )}
+          {dataKey && validKeys.length > 0 && <Grid data={parsed[dataKey]} />}
           {validKeys.length === 0 && (
             <pre>{JSON.stringify(parsed, null, 2)}</pre>
           )}
