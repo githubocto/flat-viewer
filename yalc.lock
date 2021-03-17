@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "flat-ui": {
-      "signature": "08453842004910449f874a0362c610f6",
-      "file": true
-    }
-  }
-}
