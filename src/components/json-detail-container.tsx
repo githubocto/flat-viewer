@@ -164,8 +164,10 @@ export function JSONDetail(props: JSONDetailProps) {
             </EmptyState>
           )}
 
-          {validKeys.length > 0 && dataKey && <Grid data={parsed[dataKey]} />}
-          {isFlatArray && <Grid data={parsed} />}
+          {validKeys.length > 0 && dataKey && (
+            <Grid diffData={[]} data={parsed[dataKey]} />
+          )}
+          {isFlatArray && <Grid diffData={[]} data={parsed} />}
         </div>
       )}
     </React.Fragment>
