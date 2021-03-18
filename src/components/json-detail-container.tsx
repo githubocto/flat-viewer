@@ -105,7 +105,7 @@ export function JSONDetail(props: JSONDetailProps) {
         <div className="h-full overflow-auto p-4 font-mono text-xs p-4">
           {showKeyPicker && (
             <Portal node={filePickerRef?.current}>
-              <div className="w-64">
+              <div className="w-full md:w-64">
                 <Picker<string>
                   label="Choose a field"
                   items={validKeys}

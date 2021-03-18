@@ -91,14 +91,14 @@ export function RepoDetail(props: RepoDetailProps) {
   return (
     <React.Fragment>
       <Toaster position="bottom-left" />
-      <div className="bg-white border-b flex">
+      <div className="bg-white border-b md:flex">
         <Link
           to="/"
-          className="flex h-full w-16 h-16 p-2 border-r hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          className="inline-block md:flex md:h-full w-16 h-16 p-2 md:border-r hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
         >
           <img className="w-full h-full" src={FlatLogo} alt="Flat Logo" />
         </Link>
-        <div className="flex items-center justify-center px-4">
+        <div className="md:flex items-center justify-center px-4">
           <div>
             <p className="text-xs font-medium text-gray-500">Repository</p>
             <p className="font-mono text-sm">
@@ -114,7 +114,7 @@ export function RepoDetail(props: RepoDetailProps) {
           </div>
         </div>
         {yamlQueryStatus !== "error" && (
-          <div className="flex items-center justify-center px-4 border-l border-gray py-2">
+          <div className="md:flex items-center justify-center px-4 border-l border-gray py-2">
             {yamlQueryStatus === "loading" ||
               (commitQueryStatus === "loading" && (
                 <div className="w-48 h-6 skeleton"></div>
@@ -165,7 +165,7 @@ export function RepoDetail(props: RepoDetailProps) {
           </div>
         )}
         <div
-          className="flex items-center justify-center px-4 border-l border-gray py-2"
+          className="md:flex items-center justify-center px-4 border-l border-gray py-2"
           ref={filePickerRef}
         ></div>
       </div>
