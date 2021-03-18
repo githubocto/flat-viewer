@@ -3,6 +3,7 @@ import { RouteComponentProps, Link, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
+import { CommitIcon } from "@primer/octicons-react";
 
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
@@ -15,7 +16,6 @@ import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
 import { parseFlatCommitMessage } from "../lib";
 import { Picker } from "./picker";
-import { CommitIcon } from "@primer/octicons-react";
 import { DisplayCommit } from "./display-commit";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
@@ -34,7 +34,10 @@ export function RepoDetail(props: RepoDetailProps) {
 
   React.useEffect(() => {
     if (selectedSha) {
-      history.push({ search: qs.stringify({ sha: selectedSha }) });
+      const currentQueryString = qs.parse(history.location.search);
+      history.push({
+        search: qs.stringify({ sha: selectedSha, key: currentQueryString.key }),
+      });
     }
   }, [selectedSha]);
 
@@ -120,7 +123,7 @@ export function RepoDetail(props: RepoDetailProps) {
               commitQueryStatus === "success" &&
               commits && (
                 <Picker<string>
-                  label="Choose a SHA"
+                  label="Choose a commit"
                   placeholder="Select a SHA"
                   onChange={setSelectedSha}
                   value={selectedSha}

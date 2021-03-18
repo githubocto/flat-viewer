@@ -32,10 +32,14 @@ export function useCommits(
   });
 }
 
-export function useDataFile(params: FileParamsWithSHA) {
+export function useDataFile(
+  params: FileParamsWithSHA,
+  config: UseQueryOptions<string>
+) {
   return useQuery(["data", params], () => fetchDataFile(params), {
     retry: false,
     refetchOnWindowFocus: false,
+    ...config,
   });
 }
 

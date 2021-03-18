@@ -77,16 +77,14 @@ export function Picker<Item>(props: PickerProps<Item>) {
   }, [isOpen, forceUpdate]);
 
   return (
-    <div>
+    <div className="w-full">
       {label && (
-        <div className="mb-1">
-          <label
-            className="text-xs text-gray-500 font-medium"
-            {...getLabelProps()}
-          >
-            {label}
-          </label>
-        </div>
+        <label
+          className="text-xs text-gray-500 font-medium sr-only"
+          {...getLabelProps()}
+        >
+          {label}
+        </label>
       )}
       <div className="relative" ref={setReferenceElement}>
         <button
