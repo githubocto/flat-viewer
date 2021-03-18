@@ -8,7 +8,7 @@ import { CommitIcon } from "@primer/octicons-react";
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
 
-import MeowEmoji from "../meow_huh.png";
+import Glass from "../glass.svg";
 import FlatLogo from "../flat.svg";
 
 import { JSONDetail } from "./json-detail-container";
@@ -182,7 +182,7 @@ export function RepoDetail(props: RepoDetailProps) {
           />
         )}
         {yamlQueryStatus === "error" && (
-          <ErrorState img={MeowEmoji}>
+          <ErrorState img={Glass} alt="Magnifying glass icon">
             Hmm, we couldn't load any Flat data from this repository. <br /> Are
             you sure it has a valid Flat action in it?
           </ErrorState>

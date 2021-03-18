@@ -2,6 +2,7 @@ import React from "react";
 
 interface ErrorStateProps {
   img: string;
+  alt: string;
   children: React.ReactNode;
 }
 
@@ -12,7 +13,7 @@ export function ErrorState(props: ErrorStateProps) {
         <img
           className="grayscale w-24 mx-auto"
           src={props.img}
-          alt="Confused cat emoji"
+          alt={props.alt}
         />
         <p className="leading-relaxed text-gray-600 font-mono">
           {props.children}

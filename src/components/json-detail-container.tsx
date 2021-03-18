@@ -9,9 +9,9 @@ import { FileCodeIcon } from "@primer/octicons-react";
 import { useDataFile, useProgressBar } from "../hooks";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
-import MeowCode from "../meow_code.gif";
 import { Picker } from "./picker";
 import { EmptyState } from "./empty-state";
+import Bug from "../bug.svg";
 
 interface JSONDetailProps {
   sha: string;
@@ -94,7 +94,7 @@ export function JSONDetail(props: JSONDetailProps) {
     <React.Fragment>
       <Toaster position="bottom-left" />
       {isError && (
-        <ErrorState img={MeowCode}>
+        <ErrorState img={Bug} alt="Error icon">
           Oh no, we couldn't load{" "}
           <em className="text-underline font-normal">{filename}</em> for some
           reason.
@@ -138,7 +138,7 @@ export function JSONDetail(props: JSONDetailProps) {
             </Portal>
           )}
           {showKeyPicker && !dataKey && (
-            <EmptyState>
+            <EmptyState alt="Empty state icon">
               <div className="space-y-4">
                 <div>
                   Hmm, it looks like your data file has multiple keys with array
