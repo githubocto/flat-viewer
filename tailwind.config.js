@@ -1,7 +1,18 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
-  purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+  purge: {
+    content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+    options: {
+      safelist: [
+        "h-10",
+        "overflow-ellipsis",
+        "block",
+        "whitespace-nowrap",
+        "overflow-hidden",
+      ],
+    },
+  },
   darkMode: false, // or 'media' or 'class'
   theme: {
     extend: {
