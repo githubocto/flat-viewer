@@ -75,7 +75,7 @@ function RepoFormComponent(props: FormikProps<Repo>) {
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center">
-          <span className="px-2 bg-gray-100 text-sm text-gray-500">
+          <span className="px-2 bg-gray-50 text-sm text-gray-500">
             or, alternatively
           </span>
         </div>
