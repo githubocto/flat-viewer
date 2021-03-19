@@ -90,7 +90,9 @@ export function RepoDetail(props: RepoDetailProps) {
 
   const selectedShaIndex = commits.findIndex((d) => d.sha === selectedSha);
   const selectedShaPrevious =
-    selectedShaIndex !== -1 ? commits[selectedShaIndex + 1].sha : undefined;
+    selectedShaIndex !== -1
+      ? (commits[selectedShaIndex + 1] || {}).sha
+      : undefined;
 
   return (
     <React.Fragment>
