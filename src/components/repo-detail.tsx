@@ -134,7 +134,7 @@ export function RepoDetail(props: RepoDetailProps) {
                   itemRenderer={(sha) => {
                     const commit = commits.find((commit) => commit.sha === sha);
                     return (
-                      <div className="flex flex-col space-y-2 text-xs">
+                      <div className="flex flex-col space-y-1 text-xs">
                         <DisplayCommit message={commit?.commit.message} />
                         <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2">
