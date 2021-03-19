@@ -3,7 +3,7 @@ import { RouteComponentProps, Link, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
-import { CommitIcon } from "@primer/octicons-react";
+import { CommitIcon, RepoIcon } from "@primer/octicons-react";
 
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
@@ -97,22 +97,27 @@ export function RepoDetail(props: RepoDetailProps) {
   return (
     <React.Fragment>
       <Toaster position="bottom-left" />
-      <div className="bg-indigo-600 flex p-4 space-x-8">
-        <div className="space-y-1">
+      <div className="bg-indigo-600 flex p-4 space-x-4">
+        <div className="space-y-2">
           <p className="text-xs font-medium text-indigo-200">Repository</p>
           <p className="font-mono text-sm text-white">
             <a
-              className="hover:underline"
+              className="hover:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2"
               target="_blank"
               rel="noopener noreferrer"
               href={repoUrl}
             >
-              {owner}/{name}
+              <div className="flex items-center space-x-2">
+                <RepoIcon />
+                <span className="text-xs">
+                  {owner}/{name}
+                </span>
+              </div>
             </a>
           </p>
         </div>
         {yamlQueryStatus !== "error" && (
-          <div className="space-y-1">
+          <div className="space-y-2">
             <p className="text-xs font-medium text-indigo-200">Commit</p>
             {yamlQueryStatus === "loading" ||
               (commitQueryStatus === "loading" && (
@@ -127,11 +132,11 @@ export function RepoDetail(props: RepoDetailProps) {
                   onChange={setSelectedSha}
                   value={selectedSha}
                   items={commits.map((commit) => commit.sha)}
-                  disclosureClass="appearance-none text-white text-sm"
+                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs"
                   itemRenderer={(sha) => {
                     const commit = commits.find((commit) => commit.sha === sha);
                     return (
-                      <div className="flex flex-col space-y-2">
+                      <div className="flex flex-col space-y-2 text-xs">
                         <DisplayCommit message={commit?.commit.message} />
                         <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2">

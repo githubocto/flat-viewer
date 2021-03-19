@@ -114,7 +114,7 @@ export function JSONDetail(props: JSONDetailProps) {
       {isSuccess && data && (
         <div className="h-full bg-white overflow-auto flex flex-col font-mono text-xs relative">
           {showKeyPicker && (
-            <div className="w-full bg-indigo-600 px-4 pt-0 space-x-4">
+            <div className="w-full bg-indigo-600 px-4 pt-2 space-x-4">
               {validKeys.map((key) => {
                 const tabClass = cc([
                   "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-inset-1 focus:ring-indigo-600",
