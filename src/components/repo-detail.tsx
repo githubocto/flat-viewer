@@ -88,6 +88,10 @@ export function RepoDetail(props: RepoDetailProps) {
       )
     : null;
 
+  const selectedShaIndex = commits.findIndex((d) => d.sha === selectedSha);
+  const selectedShaPrevious =
+    selectedShaIndex !== -1 ? commits[selectedShaIndex + 1].sha : undefined;
+
   return (
     <React.Fragment>
       <Toaster position="bottom-left" />
@@ -177,6 +181,7 @@ export function RepoDetail(props: RepoDetailProps) {
             filename={parsedCommit.file.name}
             owner={owner as string}
             name={name as string}
+            previousSha={selectedShaPrevious}
             sha={selectedSha}
             filePickerRef={filePickerRef}
           />

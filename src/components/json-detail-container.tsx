@@ -15,6 +15,7 @@ import Bug from "../bug.svg";
 
 interface JSONDetailProps {
   sha: string;
+  previousSha?: string;
   filename: string;
   owner: string;
   name: string;
@@ -29,7 +30,7 @@ export function JSONDetail(props: JSONDetailProps) {
     (parsedQueryString?.key as string) || ""
   );
 
-  const { sha, filename, owner, name, filePickerRef } = props;
+  const { sha, previousSha, filename, owner, name, filePickerRef } = props;
   const queryResult = useDataFile(
     {
       sha,
@@ -60,10 +61,22 @@ export function JSONDetail(props: JSONDetailProps) {
       },
     }
   );
+  const pastQueryResult = useDataFile(
+    {
+      // @ts-ignore
+      sha: previousSha,
+      filename,
+      owner,
+      name,
+    },
+    {}
+  );
 
   useProgressBar(queryResult);
 
   const { data, isLoading, isSuccess, isError } = queryResult;
+  const { data: pastQueryData } = pastQueryResult;
+  const diffData = pastQueryData ? JSON.parse(pastQueryData) : "";
 
   const parsed = data ? JSON.parse(data) : "";
 
@@ -165,9 +178,12 @@ export function JSONDetail(props: JSONDetailProps) {
           )}
 
           {validKeys.length > 0 && dataKey && (
-            <Grid diffData={[]} data={parsed[dataKey]} />
+            <Grid
+              data={parsed[dataKey]}
+              diffData={diffData && diffData[dataKey]}
+            />
           )}
-          {isFlatArray && <Grid diffData={[]} data={parsed} />}
+          {isFlatArray && <Grid data={parsed} diffData={diffData} />}
         </div>
       )}
     </React.Fragment>
