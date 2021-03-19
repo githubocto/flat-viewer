@@ -9,7 +9,6 @@ import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
 
 import Glass from "../glass.svg";
-import FlatLogo from "../flat.svg";
 
 import { JSONDetail } from "./json-detail-container";
 import { LoadingState } from "./loading-state";
@@ -17,7 +16,6 @@ import { ErrorState } from "./error-state";
 import { parseFlatCommitMessage } from "../lib";
 import { Picker } from "./picker";
 import { DisplayCommit } from "./display-commit";
-import { Logo } from "./logo";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
@@ -100,9 +98,9 @@ export function RepoDetail(props: RepoDetailProps) {
       <div className="bg-indigo-600 flex p-4 space-x-4">
         <div className="space-y-2">
           <p className="text-xs font-medium text-indigo-200">Repository</p>
-          <p className="font-mono text-sm text-white">
+          <div className="font-mono text-sm text-white">
             <a
-              className="hover:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2"
+              className="hover:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               target="_blank"
               rel="noopener noreferrer"
               href={repoUrl}
@@ -114,7 +112,7 @@ export function RepoDetail(props: RepoDetailProps) {
                 </span>
               </div>
             </a>
-          </p>
+          </div>
         </div>
         {yamlQueryStatus !== "error" && (
           <div className="space-y-2">
@@ -132,7 +130,7 @@ export function RepoDetail(props: RepoDetailProps) {
                   onChange={setSelectedSha}
                   value={selectedSha}
                   items={commits.map((commit) => commit.sha)}
-                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs"
+                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   itemRenderer={(sha) => {
                     const commit = commits.find((commit) => commit.sha === sha);
                     return (

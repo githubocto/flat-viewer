@@ -58,16 +58,13 @@ export function JSONDetail(props: JSONDetailProps) {
       },
     }
   );
-  const pastQueryResult = useDataFile(
-    {
-      // @ts-ignore
-      sha: previousSha,
-      filename,
-      owner,
-      name,
-    },
-    {}
-  );
+  const pastQueryResult = useDataFile({
+    // @ts-ignore
+    sha: previousSha,
+    filename,
+    owner,
+    name,
+  });
 
   useProgressBar(queryResult);
 
@@ -117,7 +114,7 @@ export function JSONDetail(props: JSONDetailProps) {
             <div className="w-full bg-indigo-600 px-4 pt-2 space-x-4">
               {validKeys.map((key) => {
                 const tabClass = cc([
-                  "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-inset-1 focus:ring-indigo-600",
+                  "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600",
                   {
                     "bg-white": key === dataKey,
                     "bg-indigo-700 text-white hover:bg-indigo-800 focus:bg-indigo-800":
