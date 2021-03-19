@@ -19,14 +19,14 @@ export function DisplayCommit(props: DisplayCommitProps) {
   const byteClass = cc([
     "text-xs font-mono",
     {
-      "text-red-600": negativeDelta,
-      "text-green-600": !negativeDelta,
+      "text-red-700 bg-red-50 p-1 rounded": negativeDelta,
+      "text-green-700 bg-green-100 p-1 rounded": !negativeDelta,
     },
   ]);
 
   return (
     <div className="flex items-center justify-between">
-      <span className="text-xs mr-3">{parsed.message}</span>
+      <span className="font-mono mr-3">{parsed.message}</span>
       <span className={byteClass}>
         <span>{negativeDelta ? "-" : "+"}</span>
         {Math.abs(parsed.file.deltaBytes)}b

@@ -1,15 +1,13 @@
 import React from "react";
-import { Portal } from "react-portal";
 import { Grid } from "@githubocto/flat-ui";
 import { useHistory } from "react-router-dom";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
-import { FileCodeIcon } from "@primer/octicons-react";
+import cc from "classcat";
 
 import { useDataFile, useProgressBar } from "../hooks";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
-import { Picker } from "./picker";
 import { EmptyState } from "./empty-state";
 import Bug from "../bug.svg";
 
@@ -19,7 +17,6 @@ interface JSONDetailProps {
   filename: string;
   owner: string;
   name: string;
-  filePickerRef: React.RefObject<HTMLDivElement> | null;
 }
 
 export function JSONDetail(props: JSONDetailProps) {
@@ -30,7 +27,7 @@ export function JSONDetail(props: JSONDetailProps) {
     (parsedQueryString?.key as string) || ""
   );
 
-  const { sha, previousSha, filename, owner, name, filePickerRef } = props;
+  const { sha, previousSha, filename, owner, name } = props;
   const queryResult = useDataFile(
     {
       sha,
@@ -115,40 +112,32 @@ export function JSONDetail(props: JSONDetailProps) {
       )}
       {isLoading && <LoadingState text="Loading data..." />}
       {isSuccess && data && (
-        <div className="h-full overflow-auto p-4 font-mono text-xs p-4">
+        <div className="h-full bg-white overflow-auto flex flex-col font-mono text-xs relative">
           {showKeyPicker && (
-            <Portal node={filePickerRef?.current}>
-              <div className="w-full md:w-64">
-                <Picker<string>
-                  label="Choose a field"
-                  items={validKeys}
-                  value={dataKey}
-                  onChange={setDataKey}
-                  placeholder="Select which field to visualize"
-                  itemRenderer={(item) => (
-                    <span className="font-mono">
-                      {item}{" "}
-                      <span className="text-gray-500">
-                        ({parsed[item].length} rows)
-                      </span>
+            <div className="w-full bg-indigo-600 px-4 pt-0 space-x-4">
+              {validKeys.map((key) => {
+                const tabClass = cc([
+                  "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-inset-1 focus:ring-indigo-600",
+                  {
+                    "bg-white": key === dataKey,
+                    "bg-indigo-700 text-white hover:bg-indigo-800 focus:bg-indigo-800":
+                      key !== dataKey,
+                  },
+                ]);
+                return (
+                  <button
+                    onClick={() => setDataKey(key)}
+                    className={tabClass}
+                    key={key}
+                  >
+                    {key}{" "}
+                    <span className="opacity-75">
+                      ({parsed[key].length} rows)
                     </span>
-                  )}
-                  selectedItemRenderer={(item) => (
-                    <div className="flex w-full items-center space-x-2 truncate">
-                      <span>
-                        <FileCodeIcon />
-                      </span>
-                      <span className="font-mono">
-                        Field: {item}{" "}
-                        <span className="text-gray-500">
-                          ({parsed[item].length} rows)
-                        </span>
-                      </span>
-                    </div>
-                  )}
-                />
-              </div>
-            </Portal>
+                  </button>
+                );
+              })}
+            </div>
           )}
           {showKeyPicker && !dataKey && (
             <EmptyState alt="Empty state icon">
@@ -157,33 +146,25 @@ export function JSONDetail(props: JSONDetailProps) {
                   Hmm, it looks like your data file has multiple keys with array
                   data.
                   <br />
-                  Which one would you like to visualize?
-                </div>
-                <div className="max-w-xs mx-auto">
-                  <Picker<string>
-                    items={validKeys}
-                    value={dataKey}
-                    onChange={setDataKey}
-                    placeholder="Select which field to visualize"
-                    itemRenderer={(item) => (
-                      <span className="font-mono">{item}</span>
-                    )}
-                    selectedItemRenderer={(item) => (
-                      <span className="font-mono">{item}</span>
-                    )}
-                  />
+                  Select the tab of the key you'd like to visualize.
                 </div>
               </div>
             </EmptyState>
           )}
 
           {validKeys.length > 0 && dataKey && (
-            <Grid
-              data={parsed[dataKey]}
-              diffData={diffData && diffData[dataKey]}
-            />
+            <div className="relative h-full">
+              <Grid
+                data={parsed[dataKey]}
+                diffData={diffData && diffData[dataKey]}
+              />
+            </div>
           )}
-          {isFlatArray && <Grid data={parsed} diffData={diffData} />}
+          {isFlatArray && (
+            <div className="relative h-full">
+              <Grid data={parsed} diffData={diffData} />
+            </div>
+          )}
         </div>
       )}
     </React.Fragment>

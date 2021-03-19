@@ -11,7 +11,7 @@ html {
 
 body,
 #root {
-  @apply bg-gray-50 flex flex-col h-full;
+  @apply flex flex-col h-full;
 }
 
 .grayscale {
