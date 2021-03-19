@@ -12,6 +12,7 @@ interface PickerProps<Item> {
   onChange: (selected: Item) => void;
   itemRenderer: (item: Item) => React.ReactNode;
   selectedItemRenderer: (item: Item) => React.ReactNode;
+  disclosureClass?: string;
 }
 
 export function Picker<Item>(props: PickerProps<Item>) {
@@ -23,6 +24,7 @@ export function Picker<Item>(props: PickerProps<Item>) {
     selectedItemRenderer,
     placeholder,
     label,
+    disclosureClass,
   } = props;
 
   const handleSelectedItemChange = (changes: UseSelectStateChange<Item>) => {
@@ -90,7 +92,7 @@ export function Picker<Item>(props: PickerProps<Item>) {
         <button
           type="button"
           {...getToggleButtonProps()}
-          className="bg-white relative w-full border border-gray-300 rounded-md shadow-sm h-9 pl-3 pr-8 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-400 text-xs"
+          className={disclosureClass}
         >
           {value ? (
             selectedItemRenderer(value)
@@ -98,9 +100,6 @@ export function Picker<Item>(props: PickerProps<Item>) {
             <span className="text-gray-600">{placeholder}</span>
           )}
         </button>
-        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <ChevronDownIcon />
-        </span>
         <div
           className={cc([
             "w-full bg-white z-10 m-0",

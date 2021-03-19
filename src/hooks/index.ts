@@ -34,7 +34,7 @@ export function useCommits(
 
 export function useDataFile(
   params: FileParamsWithSHA,
-  config: UseQueryOptions<string>
+  config?: UseQueryOptions<string>
 ) {
   return useQuery(["data", params], () => fetchDataFile(params), {
     retry: false,

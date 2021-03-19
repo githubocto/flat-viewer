@@ -3,13 +3,12 @@ import { RouteComponentProps, Link, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
-import { CommitIcon } from "@primer/octicons-react";
+import { CommitIcon, RepoIcon } from "@primer/octicons-react";
 
 import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
 import { Repo } from "../types";
 
 import Glass from "../glass.svg";
-import FlatLogo from "../flat.svg";
 
 import { JSONDetail } from "./json-detail-container";
 import { LoadingState } from "./loading-state";
@@ -30,7 +29,6 @@ export function RepoDetail(props: RepoDetailProps) {
   const [selectedSha, setSelectedSha] = React.useState<string>(
     (parsedQueryString?.sha as string) || ""
   );
-  const filePickerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (selectedSha) {
@@ -97,33 +95,31 @@ export function RepoDetail(props: RepoDetailProps) {
   return (
     <React.Fragment>
       <Toaster position="bottom-left" />
-      <div className="bg-white border-b md:flex">
-        <Link
-          to="/"
-          className="inline-block md:flex md:h-full w-16 h-16 p-2 md:border-r hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-        >
-          <img className="w-full h-full" src={FlatLogo} alt="Flat Logo" />
-        </Link>
-        <div className="md:flex items-center justify-center px-4">
-          <div>
-            <p className="text-xs font-medium text-gray-500">Repository</p>
-            <p className="font-mono text-sm">
-              <a
-                className="hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={repoUrl}
-              >
-                {owner}/{name}
-              </a>
-            </p>
+      <div className="bg-indigo-600 flex p-4 space-x-4">
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-indigo-200">Repository</p>
+          <div className="font-mono text-sm text-white">
+            <a
+              className="hover:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={repoUrl}
+            >
+              <div className="flex items-center space-x-2">
+                <RepoIcon />
+                <span className="text-xs">
+                  {owner}/{name}
+                </span>
+              </div>
+            </a>
           </div>
         </div>
         {yamlQueryStatus !== "error" && (
-          <div className="md:flex items-center justify-center px-4 border-l border-gray py-2">
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-indigo-200">Commit</p>
             {yamlQueryStatus === "loading" ||
               (commitQueryStatus === "loading" && (
-                <div className="w-48 h-6 skeleton"></div>
+                <div className="w-48 h-4 skeleton"></div>
               ))}
             {yamlQueryStatus === "success" &&
               commitQueryStatus === "success" &&
@@ -134,10 +130,11 @@ export function RepoDetail(props: RepoDetailProps) {
                   onChange={setSelectedSha}
                   value={selectedSha}
                   items={commits.map((commit) => commit.sha)}
+                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400"
                   itemRenderer={(sha) => {
                     const commit = commits.find((commit) => commit.sha === sha);
                     return (
-                      <div className="flex flex-col space-y-2">
+                      <div className="flex flex-col space-y-1 text-xs">
                         <DisplayCommit message={commit?.commit.message} />
                         <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2">
@@ -170,10 +167,6 @@ export function RepoDetail(props: RepoDetailProps) {
               )}
           </div>
         )}
-        <div
-          className="md:flex items-center justify-center px-4 border-l border-gray py-2"
-          ref={filePickerRef}
-        ></div>
       </div>
       <React.Fragment>
         {yamlQueryStatus === "loading" && <LoadingState />}
@@ -185,7 +178,6 @@ export function RepoDetail(props: RepoDetailProps) {
             name={name as string}
             previousSha={selectedShaPrevious}
             sha={selectedSha}
-            filePickerRef={filePickerRef}
           />
         )}
         {yamlQueryStatus === "error" && (
