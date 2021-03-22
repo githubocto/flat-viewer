@@ -19,16 +19,16 @@ body,
 }
 
 #nprogress .bar {
-  background: black !important;
+  background: theme('colors.indigo.400') !important;
 }
 
 #nprogress .peg {
-  box-shadow: 0 0 10px black, 0 0 5px black !important;
+  box-shadow: 0 0 10px theme('colors.indigo.400'), 0 0 5px theme('colors.indigo.400') !important;
 }
 
 #nprogress .spinner-icon {
-  border-top-color: black !important;
-  border-left-color: black !important;
+  border-top-color: theme('colors.indigo.400') !important;
+  border-left-color: theme('colors.indigo.400') !important;
 }
 
 .skeleton {

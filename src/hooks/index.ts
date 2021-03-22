@@ -45,12 +45,12 @@ export function useDataFile(
 
 nprogress.configure({ showSpinner: false });
 
-export function useProgressBar(result: UseQueryResult) {
+export function useProgressBar(numFetching: number) {
   React.useEffect(() => {
-    if (result.isLoading) {
+    if (numFetching > 0) {
       nprogress.start();
-    } else if (result.isSuccess || result.isError) {
+    } else  {
       nprogress.done();
     }
-  }, [result]);
+  }, [numFetching]);
 }

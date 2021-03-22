@@ -5,7 +5,7 @@ import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
 import { CommitIcon, RepoIcon } from "@primer/octicons-react";
 
-import { useCommits, useFlatYaml, useProgressBar } from "../hooks";
+import { useCommits, useFlatYaml } from "../hooks";
 import { Repo } from "../types";
 
 import Glass from "../glass.svg";
@@ -75,8 +75,6 @@ export function RepoDetail(props: RepoDetailProps) {
       },
     }
   );
-
-  useProgressBar(yamlQueryResult);
 
   const repoUrl = `https://github.com/${owner}/${name}`;
 

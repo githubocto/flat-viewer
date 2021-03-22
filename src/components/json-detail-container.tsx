@@ -5,7 +5,7 @@ import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
 import cc from "classcat";
 
-import { useDataFile, useProgressBar } from "../hooks";
+import { useDataFile } from "../hooks";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
 import { EmptyState } from "./empty-state";
@@ -58,6 +58,7 @@ export function JSONDetail(props: JSONDetailProps) {
       },
     }
   );
+
   const pastQueryResult = useDataFile({
     // @ts-ignore
     sha: previousSha,
@@ -65,8 +66,6 @@ export function JSONDetail(props: JSONDetailProps) {
     owner,
     name,
   });
-
-  useProgressBar(queryResult);
 
   const { data, isLoading, isSuccess, isError } = queryResult;
   const { data: pastQueryData } = pastQueryResult;
@@ -107,63 +106,69 @@ export function JSONDetail(props: JSONDetailProps) {
           reason.
         </ErrorState>
       )}
-      {isLoading && <LoadingState text="Loading data..." />}
-      {isSuccess && data && (
-        <div className="h-full bg-white overflow-auto flex flex-col font-mono text-xs relative">
-          {showKeyPicker && (
-            <div className="w-full bg-indigo-600 px-4 pt-2 space-x-4">
-              {validKeys.map((key) => {
-                const tabClass = cc([
-                  "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600",
-                  {
-                    "bg-white": key === dataKey,
-                    "bg-indigo-700 text-white hover:bg-indigo-800 focus:bg-indigo-800":
-                      key !== dataKey,
-                  },
-                ]);
-                return (
-                  <button
-                    onClick={() => setDataKey(key)}
-                    className={tabClass}
-                    key={key}
-                  >
-                    {key}{" "}
-                    <span className="opacity-75">
-                      ({parsed[key].length} rows)
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          {showKeyPicker && !dataKey && (
-            <EmptyState alt="Empty state icon">
-              <div className="space-y-4">
-                <div>
-                  Hmm, it looks like your data file has multiple keys with array
-                  data.
-                  <br />
-                  Select the tab of the key you'd like to visualize.
-                </div>
-              </div>
-            </EmptyState>
-          )}
-
-          {validKeys.length > 0 && dataKey && (
-            <div className="relative h-full">
-              <Grid
-                data={parsed[dataKey]}
-                diffData={diffData && diffData[dataKey]}
-              />
-            </div>
-          )}
-          {isFlatArray && (
-            <div className="relative h-full">
-              <Grid data={parsed} diffData={diffData} />
-            </div>
-          )}
-        </div>
+      {(queryResult.status === "loading" ||
+        pastQueryResult.status === "loading") && (
+        <LoadingState text="Loading data..." />
       )}
+      {queryResult.status === "success" &&
+        (pastQueryResult.status === "success" ||
+          pastQueryResult.status === "error") &&
+        data && (
+          <div className="h-full bg-white overflow-auto flex flex-col font-mono text-xs relative">
+            {showKeyPicker && (
+              <div className="w-full bg-indigo-600 px-4 pt-2 space-x-4">
+                {validKeys.map((key) => {
+                  const tabClass = cc([
+                    "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600",
+                    {
+                      "bg-white": key === dataKey,
+                      "bg-indigo-700 text-white hover:bg-indigo-800 focus:bg-indigo-800":
+                        key !== dataKey,
+                    },
+                  ]);
+                  return (
+                    <button
+                      onClick={() => setDataKey(key)}
+                      className={tabClass}
+                      key={key}
+                    >
+                      {key}{" "}
+                      <span className="opacity-75">
+                        ({parsed[key].length} rows)
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {showKeyPicker && !dataKey && (
+              <EmptyState alt="Empty state icon">
+                <div className="space-y-4">
+                  <div>
+                    Hmm, it looks like your data file has multiple keys with
+                    array data.
+                    <br />
+                    Select the tab of the key you'd like to visualize.
+                  </div>
+                </div>
+              </EmptyState>
+            )}
+
+            {validKeys.length > 0 && dataKey && (
+              <div className="relative h-full">
+                <Grid
+                  data={parsed[dataKey]}
+                  diffData={diffData && diffData[dataKey]}
+                />
+              </div>
+            )}
+            {isFlatArray && (
+              <div className="relative h-full">
+                <Grid data={parsed} diffData={diffData} />
+              </div>
+            )}
+          </div>
+        )}
     </React.Fragment>
   );
 }
