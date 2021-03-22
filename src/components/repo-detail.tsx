@@ -1,5 +1,5 @@
 import React from "react";
-import { RouteComponentProps, Link, useHistory } from "react-router-dom";
+import { RouteComponentProps, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
@@ -13,7 +13,7 @@ import Glass from "../glass.svg";
 import { JSONDetail } from "./json-detail-container";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
-import { parseFlatCommitMessage } from "../lib";
+import { getFiltersAsString, GridState, parseFlatCommitMessage } from "../lib";
 import { Picker } from "./picker";
 import { DisplayCommit } from "./display-commit";
 
@@ -30,14 +30,61 @@ export function RepoDetail(props: RepoDetailProps) {
     (parsedQueryString?.sha as string) || ""
   );
 
+  const [gridState, setGridState] = React.useState<GridState>({
+    filters: {},
+    sort: [],
+    stickyColumnName: undefined,
+  });
+  const [urlGridState, setUrlGridState] = React.useState<GridState>({
+    filters: {},
+    sort: [],
+    stickyColumnName: undefined,
+  });
+  const updateGridStateFromFilters = () => {
+    const splitFilters =
+      // @ts-ignore
+      decodeURI(parsedQueryString?.filters || "").split("&") || [];
+    let filters = {};
+    splitFilters.forEach((filter) => {
+      const [key, value] = filter.split("=");
+      if (!key || !value) return;
+      const isArray = value?.split(",").length === 2;
+      // @ts-ignore
+      filters[key] = isArray ? value.split(",").map((d) => +d) : value;
+    });
+    // @ts-ignore
+    const sort = decodeURIComponent(parsedQueryString?.sort || "")?.split(",");
+    const stickyColumnName =
+      typeof parsedQueryString?.stickyColumnName === "string"
+        ? parsedQueryString?.stickyColumnName
+        : "";
+    setUrlGridState({ filters, sort, stickyColumnName });
+  };
+  React.useEffect(updateGridStateFromFilters, [selectedSha]);
+
+  const gridStateFiltersString = getFiltersAsString(gridState.filters);
+  const gridStateSortString = gridState.sort.join(",");
+
   React.useEffect(() => {
     if (selectedSha) {
       const currentQueryString = qs.parse(history.location.search);
+      const state = {
+        sha: selectedSha,
+        key: currentQueryString.key,
+        filters: gridStateFiltersString,
+        sort: gridStateSortString,
+        stickyColumnName: gridState.stickyColumnName,
+      };
       history.push({
-        search: qs.stringify({ sha: selectedSha, key: currentQueryString.key }),
+        search: qs.stringify(state),
       });
     }
-  }, [selectedSha]);
+  }, [
+    selectedSha,
+    gridStateFiltersString,
+    gridStateSortString,
+    gridState.stickyColumnName,
+  ]);
 
   // Hook for fetching flat YAML config
   const yamlQueryResult = useFlatYaml({ owner, name });
@@ -176,6 +223,8 @@ export function RepoDetail(props: RepoDetailProps) {
             name={name as string}
             previousSha={selectedShaPrevious}
             sha={selectedSha}
+            urlGridState={urlGridState}
+            onGridStateChange={setGridState}
           />
         )}
         {yamlQueryStatus === "error" && (

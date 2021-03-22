@@ -47,6 +47,7 @@ export function fetchCommits(params: FileParams) {
 
 export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
+  console.log("fetchign", filename);
   return wretch()
     .url(
       `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`

@@ -28,3 +28,31 @@ export function parseFlatCommitMessage(message?: string) {
     file: parsed.files[0],
   };
 }
+
+export interface GridState {
+  filters: FilterMap<FilterValue>;
+  sort: string[];
+  stickyColumnName?: string;
+}
+
+export type FilterValue = string | number | [number, number];
+export type FilterMap<T> = Record<string, T>;
+
+export function getFiltersAsString(filters: Record<string, FilterValue>) {
+  return encodeURI(
+    Object.keys(filters)
+      .map((columnName) => {
+        const value = filters[columnName];
+        // @ts-ignore
+        return [
+          columnName,
+          // prettier-ignore
+          typeof value === "string" ? value           :
+      // @ts-ignore
+        Array.isArray(value)      ? value.join(",") :
+                                    "",
+        ].join("=");
+      })
+      .join("&")
+  );
+}

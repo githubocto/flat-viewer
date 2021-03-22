@@ -5,6 +5,7 @@ import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
 import cc from "classcat";
 
+import { GridState } from "../lib";
 import { useDataFile } from "../hooks";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
@@ -17,6 +18,8 @@ interface JSONDetailProps {
   filename: string;
   owner: string;
   name: string;
+  urlGridState: GridState;
+  onGridStateChange: (newGridState: GridState) => void;
 }
 
 export function JSONDetail(props: JSONDetailProps) {
@@ -27,7 +30,15 @@ export function JSONDetail(props: JSONDetailProps) {
     (parsedQueryString?.key as string) || ""
   );
 
-  const { sha, previousSha, filename, owner, name } = props;
+  const {
+    sha,
+    previousSha,
+    filename,
+    owner,
+    name,
+    urlGridState,
+    onGridStateChange,
+  } = props;
   const queryResult = useDataFile(
     {
       sha,
@@ -69,23 +80,40 @@ export function JSONDetail(props: JSONDetailProps) {
 
   const { data, isLoading, isSuccess, isError } = queryResult;
   const { data: pastQueryData } = pastQueryResult;
-  const diffData = pastQueryData ? JSON.parse(pastQueryData) : "";
 
-  const parsed = data ? JSON.parse(data) : "";
+  const {
+    diffData,
+    parsed,
+    isFlatArray,
+    validKeys,
+    showKeyPicker,
+  } = React.useMemo(() => {
+    const diffData = pastQueryData ? JSON.parse(pastQueryData) : "";
+    const parsed = data ? JSON.parse(data) : "";
 
-  const isFlatArray = Array.isArray(parsed);
+    const isFlatArray = Array.isArray(parsed);
 
-  const parsedDataKeys = Object.keys(parsed);
+    const parsedDataKeys = Object.keys(parsed);
 
-  const hasMultipleKeys = parsedDataKeys.length > 0;
+    const hasMultipleKeys = parsedDataKeys.length > 0;
 
-  const validKeys = parsed
-    ? parsedDataKeys.filter((k) => {
-        return Array.isArray(parsed[k]);
-      })
-    : [];
+    const validKeys = parsed
+      ? parsedDataKeys.filter((k) => {
+          return Array.isArray(parsed[k]);
+        })
+      : [];
 
-  const showKeyPicker = validKeys.length > 0 && hasMultipleKeys && !isFlatArray;
+    const showKeyPicker =
+      validKeys.length > 0 && hasMultipleKeys && !isFlatArray;
+
+    return {
+      diffData,
+      parsed,
+      isFlatArray,
+      validKeys,
+      showKeyPicker,
+    };
+  }, [data, pastQueryData]);
 
   React.useEffect(() => {
     if (dataKey) {
@@ -95,6 +123,14 @@ export function JSONDetail(props: JSONDetailProps) {
       });
     }
   }, [dataKey]);
+
+  const onGridChange = (newState: GridState) => {
+    onGridStateChange({
+      filters: newState.filters,
+      sort: newState.sort,
+      stickyColumnName: newState.stickyColumnName,
+    });
+  };
 
   return (
     <React.Fragment>
@@ -159,12 +195,21 @@ export function JSONDetail(props: JSONDetailProps) {
                 <Grid
                   data={parsed[dataKey]}
                   diffData={diffData && diffData[dataKey]}
+                  // @ts-ignore
+                  defaultFilters={urlGridState.filters}
+                  defaultSort={urlGridState.sort}
+                  defaultStickyColumnName={urlGridState.stickyColumnName}
+                  onChange={onGridChange}
                 />
               </div>
             )}
             {isFlatArray && (
               <div className="relative h-full">
-                <Grid data={parsed} diffData={diffData} />
+                <Grid
+                  data={parsed}
+                  diffData={diffData}
+                  onChange={onGridChange}
+                />
               </div>
             )}
           </div>
