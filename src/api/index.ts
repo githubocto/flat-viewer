@@ -5,7 +5,6 @@ import { Repo } from "../types";
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
 export function fetchFlatYaml(repo: Repo) {
-  // Check if flat.yml exists!
   return wretch()
     .url(
       `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/main/.github/workflows/flat.yaml`
@@ -47,7 +46,6 @@ export function fetchCommits(params: FileParams) {
 
 export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
-  console.log("fetchign", filename);
   return wretch()
     .url(
       `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`

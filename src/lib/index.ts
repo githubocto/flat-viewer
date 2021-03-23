@@ -43,14 +43,13 @@ export function getFiltersAsString(filters: Record<string, FilterValue>) {
     Object.keys(filters)
       .map((columnName) => {
         const value = filters[columnName];
-        // @ts-ignore
         return [
           columnName,
-          // prettier-ignore
-          typeof value === "string" ? value           :
-      // @ts-ignore
-        Array.isArray(value)      ? value.join(",") :
-                                    "",
+          typeof value === "string"
+            ? value
+            : Array.isArray(value)
+            ? value.join(",")
+            : "",
         ].join("=");
       })
       .join("&")
