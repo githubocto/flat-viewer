@@ -150,7 +150,7 @@ export function JSONDetail(props: JSONDetailProps) {
         (pastQueryResult.status === "success" ||
           pastQueryResult.status === "error") &&
         data && (
-          <div className="h-full bg-white overflow-auto flex flex-col font-mono text-xs relative">
+          <div className="h-full bg-white overflow-auto flex flex-col text-xs relative">
             {showKeyPicker && (
               <div className="w-full bg-indigo-600 px-4 pt-2 space-x-4">
                 {validKeys.map((key) => {
