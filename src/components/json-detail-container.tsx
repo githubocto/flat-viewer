@@ -152,29 +152,33 @@ export function JSONDetail(props: JSONDetailProps) {
         data && (
           <div className="h-full bg-white overflow-auto flex flex-col text-xs relative">
             {showKeyPicker && (
-              <div className="w-full bg-indigo-600 px-4 pt-2 space-x-4">
-                {validKeys.map((key) => {
-                  const tabClass = cc([
-                    "h-8 px-2 appearance-none rounded-tr rounded-tl focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600",
-                    {
-                      "bg-white": key === dataKey,
-                      "bg-indigo-700 text-white hover:bg-indigo-800 focus:bg-indigo-800":
-                        key !== dataKey,
-                    },
-                  ]);
-                  return (
-                    <button
-                      onClick={() => setDataKey(key)}
-                      className={tabClass}
-                      key={key}
-                    >
-                      {key}{" "}
-                      <span className="opacity-75">
-                        ({parsed[key].length} rows)
-                      </span>
-                    </button>
-                  );
-                })}
+              <div className="w-full px-4 pb-4 bg-indigo-600">
+                <div className="border-b border-indigo-500 flex space-x-2 overflow-x-auto pb-px">
+                  {validKeys.map((key) => {
+                    const tabClass = cc([
+                      "h-8 px-2 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative",
+                      {
+                        "text-white border-white bg-indigo-700":
+                          key === dataKey,
+                        "bg-transparent border-transparent hover:bg-indigo-700 hover:border-indigo-200 focus:bg-indigo-700 focus:border-indigo-200 text-white":
+                          key !== dataKey,
+                      },
+                    ]);
+                    return (
+                      <button
+                        onClick={() => setDataKey(key)}
+                        className={tabClass}
+                        key={key}
+                        style={{ top: 1 }}
+                      >
+                        {key}{" "}
+                        <span className="opacity-75">
+                          ({parsed[key].length} rows)
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
             {showKeyPicker && !dataKey && (
