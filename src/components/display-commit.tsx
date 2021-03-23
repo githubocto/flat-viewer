@@ -26,11 +26,15 @@ export function DisplayCommit(props: DisplayCommitProps) {
 
   return (
     <div className="flex items-center justify-between">
-      <span className="font-mono mr-3">{parsed.message}</span>
-      <span className={byteClass}>
-        <span>{negativeDelta ? "-" : "+"}</span>
-        {Math.abs(parsed.file.deltaBytes)}b
-      </span>
+      <div className="truncate">
+        <span className="font-mono">{parsed.message}</span>
+      </div>
+      <div className="pl-4 flex-shrink-0">
+        <span className={byteClass}>
+          <span>{negativeDelta ? "-" : "+"}</span>
+          {Math.abs(parsed.file.deltaBytes)}b
+        </span>
+      </div>
     </div>
   );
 }

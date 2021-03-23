@@ -140,7 +140,7 @@ export function RepoDetail(props: RepoDetailProps) {
   return (
     <React.Fragment>
       <Toaster position="bottom-left" />
-      <div className="bg-indigo-600 flex p-4 space-x-4">
+      <div className="bg-indigo-600 lg:flex p-4 space-y-4 lg:space-y-0 lg:space-x-4">
         <div className="space-y-2">
           <p className="text-xs font-medium text-indigo-200">Repository</p>
           <div className="font-mono text-sm text-white">
@@ -175,7 +175,7 @@ export function RepoDetail(props: RepoDetailProps) {
                   onChange={setSelectedSha}
                   value={selectedSha}
                   items={commits.map((commit) => commit.sha)}
-                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md"
                   itemRenderer={(sha) => {
                     const commit = commits.find((commit) => commit.sha === sha);
                     return (
@@ -198,14 +198,14 @@ export function RepoDetail(props: RepoDetailProps) {
                   selectedItemRenderer={(sha) => (
                     <div className="flex items-center space-x-2">
                       <CommitIcon />
-                      <span className="block truncate">
+                      <div className="flex-1 truncate">
                         <DisplayCommit
                           message={
                             commits.find((commit) => commit.sha === sha)?.commit
                               .message
                           }
                         />
-                      </span>
+                      </div>
                     </div>
                   )}
                 />
