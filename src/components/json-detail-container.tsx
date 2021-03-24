@@ -156,7 +156,7 @@ export function JSONDetail(props: JSONDetailProps) {
                 <div className="border-b border-indigo-500 flex space-x-2 overflow-x-auto pb-px">
                   {validKeys.map((key) => {
                     const tabClass = cc([
-                      "h-8 px-2 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative",
+                      "h-8 px-2 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative rounded-tl rounded-tr",
                       {
                         "text-white border-white bg-indigo-700":
                           key === dataKey,
