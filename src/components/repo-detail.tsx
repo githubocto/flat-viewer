@@ -4,6 +4,7 @@ import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
 import { CommitIcon, RepoIcon } from "@primer/octicons-react";
+import { debounce } from "lodash";
 
 import { useCommits, useFlatYaml } from "../hooks";
 import { Repo } from "../types";
@@ -22,6 +23,7 @@ interface RepoDetailProps extends RouteComponentProps<Repo> {}
 export function RepoDetail(props: RepoDetailProps) {
   const { match } = props;
   const { owner, name } = match.params;
+  const currentGridUrlParamString = React.useRef("");
 
   const history = useHistory();
   const parsedQueryString = qs.parse(history.location.search);
@@ -65,20 +67,24 @@ export function RepoDetail(props: RepoDetailProps) {
   const gridStateFiltersString = getFiltersAsString(gridState.filters);
   const gridStateSortString = gridState.sort.join(",");
 
-  React.useEffect(() => {
-    if (selectedSha) {
-      const currentQueryString = qs.parse(history.location.search);
-      const state = {
-        sha: selectedSha,
-        key: currentQueryString.key,
-        filters: gridStateFiltersString,
-        sort: gridStateSortString,
-        stickyColumnName: gridState.stickyColumnName,
-      };
+  const updateUrlParams = React.useCallback(
+    debounce(() => {
       history.push({
-        search: qs.stringify(state),
+        search: currentGridUrlParamString.current,
       });
-    }
+    }, 1200),
+    []
+  );
+  React.useEffect(() => {
+    const currentQueryString = qs.parse(history.location.search);
+    currentGridUrlParamString.current = qs.stringify({
+      sha: selectedSha,
+      key: currentQueryString.key,
+      filters: gridStateFiltersString,
+      sort: gridStateSortString,
+      stickyColumnName: gridState.stickyColumnName,
+    });
+    updateUrlParams();
   }, [
     selectedSha,
     gridStateFiltersString,

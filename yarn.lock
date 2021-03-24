@@ -230,10 +230,10 @@
   dependencies:
     purgecss "^3.1.3"
 
-"@githubocto/flat-ui@^0.6.3":
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/@githubocto/flat-ui/-/flat-ui-0.6.3.tgz#b7c3d33c85c0c4b7d7fa1a75b70e58d820f9d9ba"
-  integrity sha512-EhHHtnnyYQU6V41U/3+EQ4EopKpmGXTfi3VNF0olUXVh40ARMdD0Jobs+N53x1oOUgPfvL04R3ZI3apb4ns3Vg==
+"@githubocto/flat-ui@^0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@githubocto/flat-ui/-/flat-ui-0.6.6.tgz#e406635bc4ab693f15aace6cfd36e6180d0bb745"
+  integrity sha512-eDl4cG/I6xctchu+A7MeX3oAlI1X/PsR+J+7oUb/TGFrn3RXl2gokRv+2lvf1AMtV2tetaXA1r5ysgJh8qwyfQ==
   dependencies:
     "@primer/octicons-react" "^12.1.0"
     "@radix-ui/react-dropdown-menu" "^0.0.10"
@@ -242,6 +242,7 @@
     "@tailwindcss/line-clamp" "^0.2.0"
     "@types/react-virtualized-auto-sizer" "^1.0.0"
     "@types/react-window" "^1.8.2"
+    anchorme "^2.1.2"
     classcat "^5.0.3"
     d3 "^6.6.0"
     date-fns "^2.19.0"
@@ -644,7 +645,14 @@
   resolved "https://registry.yarnpkg.com/@types/js-cookie/-/js-cookie-2.2.6.tgz#f1a1cb35aff47bc5cfb05cb0c441ca91e914c26f"
   integrity sha512-+oY0FDTO2GYKEV0YPvSshGq9t7YozVkgvXLty7zogQNuCxBhT9/3INX9Q7H1aRZ4SUDRXAKlJuA4EA5nTt7SNw==
 
-"@types/lodash@^4.14.165":
+"@types/lodash.debounce@^4.0.6":
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/@types/lodash.debounce/-/lodash.debounce-4.0.6.tgz#c5a2326cd3efc46566c47e4c0aa248dc0ee57d60"
+  integrity sha512-4WTmnnhCfDvvuLMaF3KV4Qfki93KebocUF45msxhYyjMttZDQYzHkO639ohhk8+oco2cluAFL3t5+Jn4mleylQ==
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash@*", "@types/lodash@^4.14.165":
   version "4.14.168"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.168.tgz#fe24632e79b7ade3f132891afff86caa5e5ce008"
   integrity sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==
@@ -761,6 +769,11 @@ acorn@^7.0.0:
   version "7.4.1"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-7.4.1.tgz#feaed255973d2e77555b83dbc08851a6c63520fa"
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
+
+anchorme@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/anchorme/-/anchorme-2.1.2.tgz#4abc7e128a8a42d0036a61ebb9b18bbc032fa52a"
+  integrity sha512-2iPY3kxDDZvtRzauqKDb4v7a5sTF4GZ+esQTY8nGYvmhAtGTeFPMn4cRnvyWS1qmtPTP0Mv8hyLOp9l3ZzWMKg==
 
 ansi-styles@^3.2.1:
   version "3.2.1"
@@ -1596,6 +1609,11 @@ lodash-es@^4.17.14, lodash-es@^4.17.15:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
   integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
+
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
 lodash.frompairs@^4.0.1:
   version "4.0.1"
