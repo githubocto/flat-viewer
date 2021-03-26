@@ -15,9 +15,9 @@ export function ErrorState(props: ErrorStateProps) {
           src={props.img}
           alt={props.alt}
         />
-        <p className="leading-relaxed text-gray-600 font-mono">
+        <div className="leading-relaxed text-gray-600 font-mono">
           {props.children}
-        </p>
+        </div>
       </div>
     </div>
   );

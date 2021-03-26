@@ -235,8 +235,11 @@ export function RepoDetail(props: RepoDetailProps) {
         )}
         {yamlQueryStatus === "error" && (
           <ErrorState img={Glass} alt="Magnifying glass icon">
-            Hmm, we couldn't load any Flat data from this repository. <br /> Are
-            you sure it has a valid Flat action in it?
+            <p>
+              Hmm, we couldn't tell if this is a Flat repository. <br />
+              Your repo must be public and have a <code>flat.yaml</code> file in
+              order to view your data!
+            </p>
           </ErrorState>
         )}
       </React.Fragment>
