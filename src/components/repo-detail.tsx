@@ -3,7 +3,12 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
-import { CommitIcon, LinkExternalIcon, RepoIcon } from "@primer/octicons-react";
+import {
+  BookmarkIcon,
+  CommitIcon,
+  LinkExternalIcon,
+  RepoIcon,
+} from "@primer/octicons-react";
 import { debounce } from "lodash";
 import { Title } from "react-head";
 
@@ -157,16 +162,24 @@ export function RepoDetail(props: RepoDetailProps) {
           <p className="text-xs font-medium text-indigo-200">Repository</p>
           <div className="font-mono text-sm text-white">
             <a
-              className="hover:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="hover:underline focus:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               target="_blank"
               rel="noopener noreferrer"
               href={repoUrl}
             >
               <div className="flex items-center space-x-2">
                 <RepoIcon />
-                <span className="text-xs">
+                <div
+                  className="overflow-ellipsis whitespace-nowrap overflow-hidden text-xs"
+                  style={{
+                    maxWidth: "min(30em, 100% - 1em)",
+                  }}
+                >
                   {owner}/{name}
-                </span>
+                </div>
+                <div className="opacity-50">
+                  <LinkExternalIcon />
+                </div>
               </div>
             </a>
           </div>
@@ -229,22 +242,25 @@ export function RepoDetail(props: RepoDetailProps) {
           <div className="space-y-2">
             <p className="text-xs font-medium text-indigo-200">Data source</p>
             <a
-              className="block text-white p-1 -ml-1"
+              className="font-mono hover:underline focus:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               href={dataSource}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <span
-                className="underline pr-1 inline-block overflow-ellipsis whitespace-nowrap overflow-hidden align-middle text-sm"
-                style={{
-                  maxWidth: "min(30em, 100% - 1em)",
-                }}
-              >
-                {dataSource}
-              </span>
-              <span className="opacity-50">
-                <LinkExternalIcon />
-              </span>
+              <div className="flex items-center space-x-2">
+                <BookmarkIcon />
+                <div
+                  className="overflow-ellipsis whitespace-nowrap overflow-hidden text-xs"
+                  style={{
+                    maxWidth: "min(30em, 100% - 1em)",
+                  }}
+                >
+                  {dataSource}
+                </div>
+                <div className="opacity-50">
+                  <LinkExternalIcon />
+                </div>
+              </div>
             </a>
           </div>
         )}
