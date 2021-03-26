@@ -3,7 +3,7 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
-import { CommitIcon, RepoIcon } from "@primer/octicons-react";
+import { CommitIcon, LinkExternalIcon, RepoIcon } from "@primer/octicons-react";
 import { debounce } from "lodash";
 import { Title } from "react-head";
 
@@ -137,6 +137,8 @@ export function RepoDetail(props: RepoDetailProps) {
         commits?.find((commit) => commit.sha === selectedSha)?.commit.message
       )
     : null;
+  const dataSource = parsedCommit?.file?.source;
+  console.log({ dataSource });
 
   const selectedShaIndex = commits.findIndex((d) => d.sha === selectedSha);
   const selectedShaPrevious =
@@ -220,6 +222,30 @@ export function RepoDetail(props: RepoDetailProps) {
                   )}
                 />
               )}
+          </div>
+        )}
+
+        {!!dataSource && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-indigo-200">Data source</p>
+            <a
+              className="block text-white p-1 -ml-1"
+              href={dataSource}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span
+                className="underline pr-1 inline-block overflow-ellipsis whitespace-nowrap overflow-hidden align-middle text-sm"
+                style={{
+                  maxWidth: "min(30em, 100% - 1em)",
+                }}
+              >
+                {dataSource}
+              </span>
+              <span className="opacity-50">
+                <LinkExternalIcon />
+              </span>
+            </a>
           </div>
         )}
       </div>
