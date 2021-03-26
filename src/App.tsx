@@ -1,5 +1,6 @@
 import React from "react";
 import { useIsFetching } from "react-query";
+import { HeadProvider, Title } from "react-head";
 
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
@@ -12,12 +13,15 @@ function App() {
   useProgressBar(isFetching);
 
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/:owner/:name" component={RepoDetail} />
-      </Switch>
-    </Router>
+    <HeadProvider>
+      <Title>Flat</Title>
+      <Router>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route path="/:owner/:name" component={RepoDetail} />
+        </Switch>
+      </Router>
+    </HeadProvider>
   );
 }
 
