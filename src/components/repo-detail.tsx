@@ -5,6 +5,7 @@ import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
 import { CommitIcon, RepoIcon } from "@primer/octicons-react";
 import { debounce } from "lodash";
+import { Title } from "react-head";
 
 import { useCommits, useFlatYaml } from "../hooks";
 import { Repo } from "../types";
@@ -145,6 +146,9 @@ export function RepoDetail(props: RepoDetailProps) {
 
   return (
     <React.Fragment>
+      <Title>
+        {owner}/{name} – Flat
+      </Title>
       <Toaster position="bottom-left" />
       <div className="bg-indigo-600 lg:flex p-4 space-y-4 lg:space-y-0 lg:space-x-4">
         <div className="space-y-2">
