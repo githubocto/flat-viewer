@@ -4,17 +4,32 @@ import { Repo } from "../types";
 
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
-export function fetchFlatYaml(repo: Repo) {
-  return wretch()
-    .url(
+export async function fetchFlatYaml(repo: Repo) {
+  let res;
+  try {
+    res = await fetchFile(
       `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/main/.github/workflows/flat.yaml`
-    )
+    );
+  } catch (e) {
+    try {
+      res = await fetchFile(
+        `https://raw.githubusercontent.com/${repo.owner}/${repo.name}/main/.github/workflows/flat.yml`
+      );
+    } catch (e) {
+      throw new Error("Flat YAML not found");
+    }
+  }
+  return res && res.length > 0;
+}
+export function fetchFile(url: string) {
+  return wretch()
+    .url(url)
     .get()
     .notFound(() => {
-      throw new Error("Flat YAML not found");
+      throw new Error("File not found");
     })
-    .text((yaml) => {
-      return yaml.length > 0;
+    .text((res) => {
+      return res;
     });
 }
 
