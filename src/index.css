@@ -19,16 +19,17 @@ body,
 }
 
 #nprogress .bar {
-  background: theme('colors.indigo.400') !important;
+  background: theme("colors.indigo.400") !important;
 }
 
 #nprogress .peg {
-  box-shadow: 0 0 10px theme('colors.indigo.400'), 0 0 5px theme('colors.indigo.400') !important;
+  box-shadow: 0 0 10px theme("colors.indigo.400"),
+    0 0 5px theme("colors.indigo.400") !important;
 }
 
 #nprogress .spinner-icon {
-  border-top-color: theme('colors.indigo.400') !important;
-  border-left-color: theme('colors.indigo.400') !important;
+  border-top-color: theme("colors.indigo.400") !important;
+  border-left-color: theme("colors.indigo.400") !important;
 }
 
 .skeleton {
@@ -60,4 +61,8 @@ body,
     background: rgba(92, 112, 128, 0.2);
     border-color: rgba(92, 112, 128, 0.2);
   }
+}
+
+.max-w-prose {
+  max-width: 80ch;
 }
