@@ -78,7 +78,7 @@ export function JSONDetail(props: JSONDetailProps) {
     name,
   });
 
-  const { data, isLoading, isSuccess, isError } = queryResult;
+  const { data, isError } = queryResult;
   const { data: pastQueryData } = pastQueryResult;
 
   const {
@@ -116,6 +116,12 @@ export function JSONDetail(props: JSONDetailProps) {
   }, [data, pastQueryData]);
 
   React.useEffect(() => {
+    if (!dataKey && validKeys.length > 0) {
+      setDataKey(validKeys[0]);
+    }
+  }, [validKeys, dataKey, setDataKey]);
+
+  React.useEffect(() => {
     if (dataKey) {
       const currentQueryString = qs.parse(history.location.search);
       history.push({
@@ -150,16 +156,15 @@ export function JSONDetail(props: JSONDetailProps) {
         (pastQueryResult.status === "success" ||
           pastQueryResult.status === "error") &&
         data && (
-          <div className="h-full bg-white overflow-auto flex flex-col text-xs relative">
+          <div className="h-full bg-indigo-600 overflow-auto flex flex-col text-xs relative">
             {showKeyPicker && (
-              <div className="w-full px-4 pb-4 bg-indigo-600">
-                <div className="border-b border-indigo-500 flex space-x-2 overflow-x-auto pb-px">
+              <div className="w-full px-4">
+                <div className="flex space-x-2 overflow-x-auto">
                   {validKeys.map((key) => {
                     const tabClass = cc([
-                      "h-8 px-2 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative rounded-tl rounded-tr",
+                      "h-8 px-3 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative rounded-tl rounded-tr",
                       {
-                        "text-white border-white bg-indigo-700":
-                          key === dataKey,
+                        "text-indigo-600 font-medium bg-white": key === dataKey,
                         "bg-transparent border-transparent hover:bg-indigo-700 hover:border-indigo-200 focus:bg-indigo-700 focus:border-indigo-200 text-white":
                           key !== dataKey,
                       },

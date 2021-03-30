@@ -143,7 +143,6 @@ export function RepoDetail(props: RepoDetailProps) {
       )
     : null;
   const dataSource = parsedCommit?.file?.source;
-  console.log({ dataSource });
 
   const selectedShaIndex = commits.findIndex((d) => d.sha === selectedSha);
   const selectedShaPrevious =
