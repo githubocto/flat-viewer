@@ -5,6 +5,7 @@ interface FlatFileMeta {
   name: string;
   deltaBytes: number;
   date: Date;
+  source?: string;
 }
 
 interface FlatFileCollection {

@@ -69,5 +69,18 @@ export function fetchDataFile(params: FileParamsWithSHA) {
     .notFound(() => {
       throw new Error("Data file not found");
     })
-    .text();
+    .text((res) => {
+      const data = JSON.parse(res);
+      const keys = Object.keys(data);
+
+      const isObjectOfObjects =
+        keys.length && !Object.values(data).find(Array.isArray);
+      if (!isObjectOfObjects) return data;
+
+      let parsedData = <any[]>[];
+      keys.forEach((key) => {
+        parsedData = [...parsedData, { ...data[key], id: key }];
+      });
+      return parsedData;
+    });
 }

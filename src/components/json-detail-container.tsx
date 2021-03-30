@@ -48,7 +48,7 @@ export function JSONDetail(props: JSONDetailProps) {
     },
     {
       onSuccess: (data) => {
-        const parsed = JSON.parse(data);
+        const parsed = data;
         if (dataKey) {
           if (parsed.hasOwnProperty(dataKey)) {
             // NOOP
@@ -87,9 +87,10 @@ export function JSONDetail(props: JSONDetailProps) {
     isFlatArray,
     validKeys,
     showKeyPicker,
+    isValidData,
   } = React.useMemo(() => {
-    const diffData = pastQueryData ? JSON.parse(pastQueryData) : "";
-    const parsed = data ? JSON.parse(data) : "";
+    const diffData = pastQueryData ? pastQueryData : "";
+    const parsed = data ? data : "";
 
     const isFlatArray = Array.isArray(parsed);
 
@@ -98,13 +99,16 @@ export function JSONDetail(props: JSONDetailProps) {
     const hasMultipleKeys = parsedDataKeys.length > 0;
 
     const validKeys = parsed
-      ? parsedDataKeys.filter((k) => {
+      ? parsedDataKeys.filter((k: any) => {
           return Array.isArray(parsed[k]);
         })
       : [];
 
     const showKeyPicker =
       validKeys.length > 0 && hasMultipleKeys && !isFlatArray;
+    const isValidData =
+      queryResult.status !== "success" ||
+      (data && (typeof data === "object" || Array.isArray(data)));
 
     return {
       diffData,
@@ -112,6 +116,7 @@ export function JSONDetail(props: JSONDetailProps) {
       isFlatArray,
       validKeys,
       showKeyPicker,
+      isValidData,
     };
   }, [data, pastQueryData]);
 
@@ -148,11 +153,22 @@ export function JSONDetail(props: JSONDetailProps) {
           reason.
         </ErrorState>
       )}
+      {!isValidData && (
+        <ErrorState img={Bug} alt="Error icon">
+          Oh no, we can't load that type of data from{" "}
+          <em className="text-underline font-normal">{filename}</em>.
+          <br />
+          <pre className="text-sm text-gray-600 p-3 bg-white m-6 font-mono rounded-md max-w-3xl overflow-x-auto text-left mb-12 block">
+            {data?.toString()}
+          </pre>
+        </ErrorState>
+      )}
       {(queryResult.status === "loading" ||
         pastQueryResult.status === "loading") && (
         <LoadingState text="Loading data..." />
       )}
-      {queryResult.status === "success" &&
+      {isValidData &&
+        queryResult.status === "success" &&
         (pastQueryResult.status === "success" ||
           pastQueryResult.status === "error") &&
         data && (
