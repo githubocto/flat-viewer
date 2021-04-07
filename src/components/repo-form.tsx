@@ -85,10 +85,10 @@ function RepoFormComponent(props: FormikProps<Repo>) {
           <p className="text-gray-500 text-sm">Start with example:</p>
           <div className="flex items-center space-x-2">
             <Link
-              to="/githubocto/flat-foo-demo"
+              to="/githubocto/flat-demo"
               className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-900 hover:bg-gray-700 text-white font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
-              githubocto/flat-foo-demo
+              githubocto/flat-demo
             </Link>
           </div>
         </div>
