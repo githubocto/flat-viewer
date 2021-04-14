@@ -215,7 +215,15 @@ export function JSONDetail(props: JSONDetailProps) {
               </EmptyState>
             )}
 
-            {validKeys.length > 0 && dataKey && (
+            {isFlatArray ? (
+              <div className="relative h-full">
+                <Grid
+                  data={parsed}
+                  diffData={diffData}
+                  onChange={onGridChange}
+                />
+              </div>
+            ) : validKeys.length > 0 && dataKey ? (
               <div className="relative h-full">
                 <Grid
                   data={parsed[dataKey]}
@@ -227,16 +235,7 @@ export function JSONDetail(props: JSONDetailProps) {
                   onChange={onGridChange}
                 />
               </div>
-            )}
-            {isFlatArray && (
-              <div className="relative h-full">
-                <Grid
-                  data={parsed}
-                  diffData={diffData}
-                  onChange={onGridChange}
-                />
-              </div>
-            )}
+            ) : null}
           </div>
         )}
     </React.Fragment>

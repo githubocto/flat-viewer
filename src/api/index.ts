@@ -1,6 +1,7 @@
 import wretch from "wretch";
 import { Endpoints } from "@octokit/types";
 import { Repo } from "../types";
+import { csvParse } from "d3-dsv";
 
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
@@ -33,6 +34,38 @@ export function fetchFile(url: string) {
     });
 }
 
+const getFilesFromRes = (res: any) => {
+  return res.tree
+    .map((file: any) => file.path)
+    .filter((path: string) => {
+      const extension = path.split(".").pop() || "";
+      const validExtensions = ["csv", "json"];
+      return validExtensions.includes(extension);
+    });
+};
+
+function tryBranch(owner: string, name: string, branch: string) {
+  return wretch()
+    .url(
+      `https://api.github.com/repos/${owner}/${name}/git/trees/${branch}?recursive=1`
+    )
+    .get()
+    .notFound(() => {
+      throw new Error("File not found");
+    })
+    .json((res) => {
+      return getFilesFromRes(res);
+    });
+}
+
+export async function fetchFilesFromRepo({ owner, name }: Repo) {
+  const files = await Promise.any([
+    tryBranch(owner, name, "master"),
+    tryBranch(owner, name, "main"),
+  ]);
+  return files;
+}
+
 export interface FileParams {
   filename?: string;
   owner: string;
@@ -44,11 +77,14 @@ export interface FileParamsWithSHA extends FileParams {
 }
 
 export function fetchCommits(params: FileParams) {
-  const { name, owner } = params;
+  const { name, owner, filename } = params;
 
   return wretch()
     .url(`https://api.github.com/repos/${owner}/${name}/commits`)
-    .query({ author: "flat-data@users.noreply.github.com" })
+    .query({
+      path: filename,
+      // token: "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",
+    })
     .get()
     .json<listCommitsResponse["data"]>((res: any) => {
       if (res.length === 0) {
@@ -61,6 +97,11 @@ export function fetchCommits(params: FileParams) {
 
 export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
+  if (!filename) return;
+  const fileType = filename.split(".").pop() || "";
+  const validTypes = ["csv", "json"];
+  if (!validTypes.includes(fileType)) return;
+
   return wretch()
     .url(
       `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
@@ -70,12 +111,12 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       throw new Error("Data file not found");
     })
     .text((res) => {
-      const data = JSON.parse(res);
+      const data = fileType === "csv" ? csvParse(res) : JSON.parse(res);
       const keys = Object.keys(data);
 
       const isObjectOfObjects =
         keys.length && !Object.values(data).find(Array.isArray);
-      if (!isObjectOfObjects) return data;
+      if (!isObjectOfObjects) return data.filter(Boolean);
 
       let parsedData = <any[]>[];
       keys.forEach((key) => {

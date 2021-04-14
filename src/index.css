@@ -9,6 +9,11 @@ html {
   height: 100%;
 }
 
+::selection {
+  background: theme("colors.indigo.900");
+  color: theme("colors.white");
+}
+
 body,
 #root {
   @apply flex flex-col h-full;

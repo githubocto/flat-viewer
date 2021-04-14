@@ -12,7 +12,12 @@ export function DisplayCommit(props: DisplayCommitProps) {
   if (!message) return null;
 
   const parsed = parseFlatCommitMessage(message);
-  if (!parsed) return null;
+  if (!parsed)
+    return (
+      <div className="flex items-center justify-between truncate">
+        <span className="font-mono">{message}</span>
+      </div>
+    );
 
   const negativeDelta = parsed.file?.deltaBytes < 0;
 

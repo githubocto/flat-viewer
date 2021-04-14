@@ -8,6 +8,7 @@ import {
   FileParams,
   FileParamsWithSHA,
   listCommitsResponse,
+  fetchFilesFromRepo,
 } from "../api";
 import { Repo } from "../types";
 import React from "react";
@@ -49,8 +50,23 @@ export function useProgressBar(numFetching: number) {
   React.useEffect(() => {
     if (numFetching > 0) {
       nprogress.start();
-    } else  {
+    } else {
       nprogress.done();
     }
   }, [numFetching]);
+}
+
+export function useGetFiles(
+  { owner, name }: Repo,
+  config?: UseQueryOptions<string[]>
+) {
+  return useQuery(
+    ["files", owner, name],
+    () => fetchFilesFromRepo({ owner, name }),
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      ...config,
+    }
+  );
 }

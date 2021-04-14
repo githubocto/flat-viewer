@@ -12,16 +12,13 @@ import {
 import { debounce } from "lodash";
 import { Title } from "react-head";
 
-import { useCommits, useFlatYaml } from "../hooks";
+import { useCommits, useGetFiles } from "../hooks";
 import { Repo } from "../types";
 
-import Glass from "../glass.svg";
-
 import { JSONDetail } from "./json-detail-container";
-import { LoadingState } from "./loading-state";
-import { ErrorState } from "./error-state";
 import { getFiltersAsString, GridState, parseFlatCommitMessage } from "../lib";
 import { Picker } from "./picker";
+import { FilePicker } from "./file-picker";
 import { DisplayCommit } from "./display-commit";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
@@ -48,6 +45,18 @@ export function RepoDetail(props: RepoDetailProps) {
     sort: [],
     stickyColumnName: undefined,
   });
+  const [filename, setFilename] = React.useState<string | undefined>(
+    parsedQueryString?.filename as string
+  );
+  const { data: files } = useGetFiles(
+    { owner, name },
+    {
+      onSuccess: (data) => {
+        if (!data.length) return;
+        setFilename(data[0]);
+      },
+    }
+  );
   const updateGridStateFromFilters = () => {
     const splitFilters =
       // @ts-ignore
@@ -89,6 +98,7 @@ export function RepoDetail(props: RepoDetailProps) {
       filters: gridStateFiltersString,
       sort: gridStateSortString,
       stickyColumnName: gridState.stickyColumnName,
+      filename,
     });
     updateUrlParams();
   }, [
@@ -96,17 +106,14 @@ export function RepoDetail(props: RepoDetailProps) {
     gridStateFiltersString,
     gridStateSortString,
     gridState.stickyColumnName,
+    filename,
   ]);
 
-  // Hook for fetching flat YAML config
-  const yamlQueryResult = useFlatYaml({ owner, name });
-  const { data: isFlatRepo, status: yamlQueryStatus } = yamlQueryResult;
-
   // Hook for fetching commits, once we've determined this is a Flat repo.
-  const { data: commits = [], status: commitQueryStatus } = useCommits(
-    { owner, name },
+  const { data: commits = [] } = useCommits(
+    { owner, name, filename },
     {
-      enabled: isFlatRepo === true,
+      enabled: Boolean(filename),
       onSuccess: (commits) => {
         const mostRecentCommitSha = commits[0].sha;
 
@@ -183,77 +190,80 @@ export function RepoDetail(props: RepoDetailProps) {
             </a>
           </div>
         </div>
-        {yamlQueryStatus !== "error" && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-indigo-200">Data File</p>
+          <FilePicker
+            value={filename || ""}
+            placeholder="Select a file"
+            onChange={setFilename}
+            items={files || []}
+            itemRenderer={(item) => (
+              <span className="font-mono text-xs">{item}</span>
+            )}
+          />
+        </div>
+        {Boolean(filename) && (
           <div className="space-y-2">
             <p className="text-xs font-medium text-indigo-200">Commit</p>
-            {yamlQueryStatus === "loading" ||
-              (commitQueryStatus === "loading" && (
-                <div className="w-48 h-4 skeleton"></div>
-              ))}
-            {yamlQueryStatus === "success" &&
-              commitQueryStatus === "success" &&
-              commits && (
-                <Picker<string>
-                  label="Choose a commit"
-                  placeholder="Select a SHA"
-                  onChange={setSelectedSha}
-                  value={selectedSha}
-                  items={commits.map((commit) => commit.sha)}
-                  disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md"
-                  itemRenderer={(sha) => {
-                    const commit = commits.find((commit) => commit.sha === sha);
-                    return (
-                      <div className="flex flex-col space-y-1 text-xs">
-                        <DisplayCommit message={commit?.commit.message} />
+            {commits && (
+              <Picker<string>
+                label="Choose a commit"
+                placeholder="Select a SHA"
+                onChange={setSelectedSha}
+                value={selectedSha}
+                items={commits.map((commit) => commit.sha)}
+                disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md"
+                itemRenderer={(sha) => {
+                  const commit = commits.find((commit) => commit.sha === sha);
+                  return (
+                    <div className="flex flex-col space-y-1 text-xs">
+                      <DisplayCommit message={commit?.commit.message} />
+                      <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-2">
-                            <p className="text-gray-600">
-                              {formatDistance(
-                                new Date(commit?.commit.author?.date || ""),
-                                new Date(),
-                                { addSuffix: true }
-                              )}
-                            </p>
-                          </div>
+                          <p className="text-gray-600">
+                            {formatDistance(
+                              new Date(commit?.commit.author?.date || ""),
+                              new Date(),
+                              { addSuffix: true }
+                            )}
+                          </p>
                         </div>
                       </div>
-                    );
-                  }}
-                  selectedItemRenderer={(sha) => (
-                    <div className="flex items-center space-x-2">
-                      <CommitIcon />
-                      <div className="flex-1 truncate">
-                        <DisplayCommit
-                          message={
-                            commits.find((commit) => commit.sha === sha)?.commit
-                              .message
-                          }
-                        />
-                      </div>
                     </div>
-                  )}
-                />
-              )}
+                  );
+                }}
+                selectedItemRenderer={(sha) => (
+                  <div className="flex items-center space-x-2">
+                    <CommitIcon size={16} />
+                    <div className="flex-1 truncate">
+                      <DisplayCommit
+                        message={
+                          commits.find((commit) => commit.sha === sha)?.commit
+                            .message
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              />
+            )}
           </div>
         )}
 
         {!!dataSource && (
-          <div className="space-y-2">
+          <div className="space-y-2 min-w-0">
             <p className="text-xs font-medium text-indigo-200">Data source</p>
             <a
-              className="font-mono hover:underline focus:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white inline-flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="font-mono hover:underline focus:underline bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 rounded text-white flex items-center px-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               href={dataSource}
               target="_blank"
               rel="noopener noreferrer"
             >
-              <div className="flex items-center space-x-2">
-                <BookmarkIcon />
-                <div
-                  className="overflow-ellipsis whitespace-nowrap overflow-hidden text-xs"
-                  style={{
-                    maxWidth: "min(30em, 100% - 1em)",
-                  }}
-                >
+              <div className="flex items-center space-x-2 min-w-0">
+                <div className="flex-none">
+                  <BookmarkIcon />
+                </div>
+                <div className="overflow-ellipsis whitespace-nowrap overflow-hidden text-xs">
                   {dataSource}
                 </div>
                 <div className="opacity-50">
@@ -265,11 +275,10 @@ export function RepoDetail(props: RepoDetailProps) {
         )}
       </div>
       <React.Fragment>
-        {yamlQueryStatus === "loading" && <LoadingState />}
-        {yamlQueryStatus === "success" && selectedSha && parsedCommit && (
+        {selectedSha && Boolean(filename) && (
           <JSONDetail
             key={selectedSha}
-            filename={parsedCommit.file.name}
+            filename={filename || ""}
             owner={owner as string}
             name={name as string}
             previousSha={selectedShaPrevious}
@@ -277,15 +286,6 @@ export function RepoDetail(props: RepoDetailProps) {
             urlGridState={urlGridState}
             onGridStateChange={setGridState}
           />
-        )}
-        {yamlQueryStatus === "error" && (
-          <ErrorState img={Glass} alt="Magnifying glass icon">
-            <p>
-              Hmm, we couldn't tell if this is a Flat repository. <br />
-              Your repo must be public and have a <code>flat.yaml</code> file in
-              order to view your data!
-            </p>
-          </ErrorState>
         )}
       </React.Fragment>
     </React.Fragment>
