@@ -83,7 +83,6 @@ export function fetchCommits(params: FileParams) {
     .url(`https://api.github.com/repos/${owner}/${name}/commits`)
     .query({
       path: filename,
-      // token: "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",
     })
     .get()
     .json<listCommitsResponse["data"]>((res: any) => {
