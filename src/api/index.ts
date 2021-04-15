@@ -34,13 +34,19 @@ export function fetchFile(url: string) {
     });
 }
 
+const ignoredFiles = ["package.json", "tsconfig.json"];
+const ignoredFolders = [".vscode", ".github"];
 const getFilesFromRes = (res: any) => {
   return res.tree
     .map((file: any) => file.path)
     .filter((path: string) => {
       const extension = path.split(".").pop() || "";
       const validExtensions = ["csv", "json"];
-      return validExtensions.includes(extension);
+      return (
+        validExtensions.includes(extension) &&
+        !ignoredFiles.includes(path) &&
+        !ignoredFolders.includes(path.split("/")[0])
+      );
     });
 };
 
