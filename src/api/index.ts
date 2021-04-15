@@ -121,7 +121,8 @@ export function fetchDataFile(params: FileParamsWithSHA) {
 
       const isObjectOfObjects =
         keys.length && !Object.values(data).find(Array.isArray);
-      if (!isObjectOfObjects) return data.filter(Boolean);
+      if (!isObjectOfObjects)
+        return Array.isArray(data) ? data.filter(Boolean) : data;
 
       let parsedData = <any[]>[];
       keys.forEach((key) => {

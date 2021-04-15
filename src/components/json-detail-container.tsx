@@ -108,7 +108,9 @@ export function JSONDetail(props: JSONDetailProps) {
       validKeys.length > 0 && hasMultipleKeys && !isFlatArray;
     const isValidData =
       queryResult.status !== "success" ||
-      (data && (typeof data === "object" || Array.isArray(data)));
+      (data &&
+        (typeof data === "object" || Array.isArray(data)) &&
+        !Array.isArray(parsed));
 
     return {
       diffData,
@@ -142,6 +144,7 @@ export function JSONDetail(props: JSONDetailProps) {
       stickyColumnName: newState.stickyColumnName,
     });
   };
+  console.log(data);
 
   return (
     <React.Fragment>
@@ -158,8 +161,10 @@ export function JSONDetail(props: JSONDetailProps) {
           Oh no, we can't load that type of data from{" "}
           <em className="text-underline font-normal">{filename}</em>.
           <br />
-          <pre className="text-sm text-gray-600 p-3 bg-white m-6 font-mono rounded-md max-w-3xl overflow-x-auto text-left mb-12 block">
-            {data?.toString()}
+          <pre className="text-sm text-gray-600 p-3 bg-white m-6 font-mono rounded-md max-w-3xl overflow-x-auto text-left mb-12 block whitespace-pre-wrap">
+            {typeof data === "object"
+              ? JSON.stringify(data, undefined, 2)
+              : data?.toString()}
           </pre>
         </ErrorState>
       )}
