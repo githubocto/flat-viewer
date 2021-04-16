@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
 import cc from "classcat";
+import truncate from "lodash.truncate";
 
 import { GridState } from "../lib";
 import { useDataFile } from "../hooks";
@@ -162,9 +163,12 @@ export function JSONDetail(props: JSONDetailProps) {
           <em className="text-underline font-normal">{filename}</em>.
           <br />
           <pre className="text-sm text-gray-600 p-3 bg-white m-6 font-mono rounded-md max-w-3xl overflow-x-auto text-left mb-12 block whitespace-pre-wrap">
-            {typeof data === "object"
-              ? JSON.stringify(data, undefined, 2)
-              : data?.toString()}
+            {truncate(
+              typeof data === "object"
+                ? JSON.stringify(data, undefined, 2)
+                : data?.toString(),
+              { length: 3000 }
+            )}
           </pre>
         </ErrorState>
       )}
