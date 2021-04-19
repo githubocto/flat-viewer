@@ -12,7 +12,7 @@ interface FlatFileCollection {
   files: FlatFileMeta[];
 }
 
-export function parseFlatCommitMessage(message?: string) {
+export function parseFlatCommitMessage(message: string, filename: string) {
   if (!message) return;
 
   const messageMatch = message.match(COMMIT_MESSAGE_REGEXP);
@@ -24,9 +24,11 @@ export function parseFlatCommitMessage(message?: string) {
   if (!metaMatch) return;
   const parsed = JSON.parse(metaMatch[0]) as FlatFileCollection;
 
+  const fileIndex = parsed.files.findIndex((d) => d.name === filename);
+
   return {
     message: extractedMessage,
-    file: parsed.files[0],
+    file: parsed.files[fileIndex],
   };
 }
 

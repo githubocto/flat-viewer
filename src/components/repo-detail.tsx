@@ -221,7 +221,11 @@ export function RepoDetail(props: RepoDetailProps) {
                   const commit = commits.find((commit) => commit.sha === sha);
                   return (
                     <div className="flex flex-col space-y-1 text-xs">
-                      <DisplayCommit message={commit?.commit.message} />
+                      <DisplayCommit
+                        message={commit?.commit.message}
+                        author={commit?.commit.author?.email}
+                        filename={filename}
+                      />
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2">
                           <p className="text-gray-600">
@@ -245,6 +249,11 @@ export function RepoDetail(props: RepoDetailProps) {
                           commits.find((commit) => commit.sha === sha)?.commit
                             .message
                         }
+                        author={
+                          commits.find((commit) => commit.sha === sha)?.commit
+                            .author?.email
+                        }
+                        filename={filename}
                       />
                     </div>
                   </div>

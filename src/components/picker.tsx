@@ -102,7 +102,7 @@ export function Picker<Item>(props: PickerProps<Item>) {
         </button>
         <div
           className={cc([
-            "w-full bg-white z-10 m-0",
+            "min-w-full bg-white z-10 m-0 w-72",
             {
               "sr-only": !isOpen,
             },
@@ -111,7 +111,7 @@ export function Picker<Item>(props: PickerProps<Item>) {
           ref={setPopperElement}
           {...attributes.popper}
         >
-          <div className="w-full rounded-md bg-white shadow-lg max-h-48">
+          <div className="rounded-md bg-white shadow-lg max-h-48">
             <ul
               className="rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm max-h-48 overflow-auto"
               {...getMenuProps()}

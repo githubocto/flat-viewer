@@ -6,3 +6,9 @@ export type Repo = {
   owner: string;
   name: string;
 };
+
+export interface FlatDataTab {
+  key?: string;
+  value?: object[];
+  invalidValue?: string;
+}
