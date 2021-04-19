@@ -107,11 +107,8 @@ export function JSONDetail(props: JSONDetailProps) {
 
     const showKeyPicker =
       validKeys.length > 0 && hasMultipleKeys && !isFlatArray;
-    const isValidData =
-      queryResult.status !== "success" ||
-      (data &&
-        (typeof data === "object" || Array.isArray(data)) &&
-        !Array.isArray(parsed));
+
+    const isValidData = typeof data === "object";
 
     return {
       diffData,
@@ -157,7 +154,7 @@ export function JSONDetail(props: JSONDetailProps) {
           reason.
         </ErrorState>
       )}
-      {!isValidData && (
+      {!isValidData && queryResult.status === "success" && (
         <ErrorState img={Bug} alt="Error icon">
           Oh no, we can't load that type of data from{" "}
           <em className="text-underline font-normal">{filename}</em>.

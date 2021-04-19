@@ -44,7 +44,7 @@ const getFilesFromRes = (res: any) => {
       const validExtensions = ["csv", "json"];
       return (
         validExtensions.includes(extension) &&
-        !ignoredFiles.includes(path) &&
+        !ignoredFiles.includes(path.split("/").slice(-1)[0]) &&
         !ignoredFolders.includes(path.split("/")[0])
       );
     });
