@@ -73,7 +73,7 @@ export async function fetchFilesFromRepo({ owner, name }: Repo) {
 }
 
 export interface FileParams {
-  filename?: string;
+  filename?: string | null;
   owner: string;
   name: string;
 }

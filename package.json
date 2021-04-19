@@ -31,6 +31,7 @@
     "react-portal": "^4.2.1",
     "react-query": "^3.12.1",
     "react-router-dom": "^5.2.0",
+    "use-query-params": "^1.2.2",
     "wretch": "^1.7.4",
     "yaml": "^1.10.0",
     "yup": "^0.32.9"

@@ -3,6 +3,8 @@ import { RouteComponentProps, useHistory } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
 import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
+import { useQueryParam, NumberParam, StringParam } from "use-query-params";
+
 import {
   BookmarkIcon,
   CommitIcon,
@@ -27,13 +29,11 @@ export function RepoDetail(props: RepoDetailProps) {
   const { match } = props;
   const { owner, name } = match.params;
   const currentGridUrlParamString = React.useRef("");
+  const [filename, setFilename] = useQueryParam("filename", StringParam);
+  const [selectedSha, setSelectedSha] = useQueryParam("sha", StringParam);
 
   const history = useHistory();
   const parsedQueryString = qs.parse(history.location.search);
-
-  const [selectedSha, setSelectedSha] = React.useState<string>(
-    (parsedQueryString?.sha as string) || ""
-  );
 
   const [gridState, setGridState] = React.useState<GridState>({
     filters: {},
@@ -45,9 +45,6 @@ export function RepoDetail(props: RepoDetailProps) {
     sort: [],
     stickyColumnName: undefined,
   });
-  const [filename, setFilename] = React.useState<string | undefined>(
-    parsedQueryString?.filename as string
-  );
   const { data: files } = useGetFiles(
     { owner, name },
     {
@@ -84,9 +81,9 @@ export function RepoDetail(props: RepoDetailProps) {
 
   const updateUrlParams = React.useCallback(
     debounce(() => {
-      history.push({
-        search: currentGridUrlParamString.current,
-      });
+      // history.push({
+      //   search: currentGridUrlParamString.current,
+      // });
     }, 1200),
     []
   );
@@ -129,9 +126,9 @@ export function RepoDetail(props: RepoDetailProps) {
                 }
               );
 
-              history.push({
-                search: qs.stringify({ sha: mostRecentCommitSha }),
-              });
+              // history.push({
+              //   search: qs.stringify({ sha: mostRecentCommitSha }),
+              // });
               setSelectedSha(mostRecentCommitSha);
             }
           } else {
@@ -195,7 +192,14 @@ export function RepoDetail(props: RepoDetailProps) {
           <FilePicker
             value={filename || ""}
             placeholder="Select a file"
-            onChange={setFilename}
+            onChange={(newFilename) => {
+              setFilename(newFilename);
+              setGridState({
+                filters: {},
+                sort: [],
+                stickyColumnName: undefined,
+              });
+            }}
             items={files || []}
             itemRenderer={(item) => (
               <span className="font-mono text-xs">{item}</span>

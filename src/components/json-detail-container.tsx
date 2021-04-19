@@ -12,6 +12,7 @@ import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
 import { EmptyState } from "./empty-state";
 import Bug from "../bug.svg";
+import { StringParam, useQueryParam } from "use-query-params";
 
 interface JSONDetailProps {
   sha: string;
@@ -24,12 +25,7 @@ interface JSONDetailProps {
 }
 
 export function JSONDetail(props: JSONDetailProps) {
-  const history = useHistory();
-  const parsedQueryString = qs.parse(history.location.search);
-
-  const [dataKey, setDataKey] = React.useState(
-    (parsedQueryString?.key as string) || ""
-  );
+  const [tabName, setTabName] = useQueryParam("tab", StringParam);
 
   const {
     sha,
@@ -50,21 +46,21 @@ export function JSONDetail(props: JSONDetailProps) {
     {
       onSuccess: (data) => {
         const parsed = data;
-        if (dataKey) {
-          if (parsed.hasOwnProperty(dataKey)) {
+        if (tabName) {
+          if (parsed.hasOwnProperty(tabName)) {
             // NOOP
           } else {
             toast.error(
-              `Hmm, we couldn't find the key ${dataKey} on your data file...`,
+              `Hmm, we couldn't find the key ${tabName} on your data file...`,
               {
                 duration: 4000,
               }
             );
-            setDataKey("");
-            const currentQueryString = qs.parse(history.location.search);
-            history.push({
-              search: qs.stringify({ sha: currentQueryString.sha }),
-            });
+            setTabName("");
+            // const currentQueryString = qs.parse(history.location.search);
+            // history.push({
+            //   search: qs.stringify({ sha: currentQueryString.sha }),
+            // });
           }
         }
       },
@@ -121,19 +117,19 @@ export function JSONDetail(props: JSONDetailProps) {
   }, [data, pastQueryData]);
 
   React.useEffect(() => {
-    if (!dataKey && validKeys.length > 0) {
-      setDataKey(validKeys[0]);
+    if (!tabName && validKeys.length > 0) {
+      setTabName(validKeys[0]);
     }
-  }, [validKeys, dataKey, setDataKey]);
+  }, [validKeys, tabName, setTabName]);
 
-  React.useEffect(() => {
-    if (dataKey) {
-      const currentQueryString = qs.parse(history.location.search);
-      history.push({
-        search: qs.stringify({ key: dataKey, sha: currentQueryString.sha }),
-      });
-    }
-  }, [dataKey]);
+  // React.useEffect(() => {
+  //   if (dataKey) {
+  //     const currentQueryString = qs.parse(history.location.search);
+  //     history.push({
+  //       search: qs.stringify({ key: dataKey, sha: currentQueryString.sha }),
+  //     });
+  //   }
+  // }, [dataKey]);
 
   const onGridChange = (newState: GridState) => {
     onGridStateChange({
@@ -142,7 +138,6 @@ export function JSONDetail(props: JSONDetailProps) {
       stickyColumnName: newState.stickyColumnName,
     });
   };
-  console.log(data);
 
   return (
     <React.Fragment>
@@ -186,21 +181,21 @@ export function JSONDetail(props: JSONDetailProps) {
                     const tabClass = cc([
                       "h-8 px-3 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative rounded-tl rounded-tr",
                       {
-                        "text-indigo-600 font-medium bg-white": key === dataKey,
+                        "text-indigo-600 font-medium bg-white": key === tabName,
                         "bg-transparent border-transparent hover:bg-indigo-700 hover:border-indigo-200 focus:bg-indigo-700 focus:border-indigo-200 text-white":
-                          key !== dataKey,
+                          key !== tabName,
                       },
                     ]);
                     return (
                       <button
-                        onClick={() => setDataKey(key)}
+                        onClick={() => setTabName(key)}
                         className={tabClass}
                         key={key}
                         style={{ top: 1 }}
                       >
                         {key}{" "}
                         <span className="opacity-75">
-                          ({parsed[key].length} rows)
+                          ({parsed[tabName].length} rows)
                         </span>
                       </button>
                     );
@@ -208,7 +203,7 @@ export function JSONDetail(props: JSONDetailProps) {
                 </div>
               </div>
             )}
-            {showKeyPicker && !dataKey && (
+            {showKeyPicker && !tabName && (
               <EmptyState alt="Empty state icon">
                 <div className="space-y-4">
                   <div>
@@ -229,11 +224,11 @@ export function JSONDetail(props: JSONDetailProps) {
                   onChange={onGridChange}
                 />
               </div>
-            ) : validKeys.length > 0 && dataKey ? (
+            ) : validKeys.length > 0 && tabName ? (
               <div className="relative h-full">
                 <Grid
-                  data={parsed[dataKey]}
-                  diffData={diffData && diffData[dataKey]}
+                  data={parsed[tabName]}
+                  diffData={diffData && diffData[tabName]}
                   // @ts-ignore
                   defaultFilters={urlGridState.filters}
                   defaultSort={urlGridState.sort}

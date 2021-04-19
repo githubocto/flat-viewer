@@ -1,6 +1,7 @@
 import React from "react";
 import { useIsFetching } from "react-query";
 import { HeadProvider, Title } from "react-head";
+import { QueryParamProvider } from "use-query-params";
 
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
@@ -16,10 +17,12 @@ function App() {
     <HeadProvider>
       <Title>Flat</Title>
       <Router>
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route path="/:owner/:name" component={RepoDetail} />
-        </Switch>
+        <QueryParamProvider ReactRouterRoute={Route}>
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route path="/:owner/:name" component={RepoDetail} />
+          </Switch>
+        </QueryParamProvider>
       </Router>
     </HeadProvider>
   );
