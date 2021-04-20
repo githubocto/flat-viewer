@@ -73,16 +73,12 @@ export function JSONDetail(props: JSONDetailProps) {
   const tabDiffData = diffData[tabIndex] || {};
 
   const onGridChange = (newState: GridState) => {
+    console.log("change", newState);
     setSort(newState.sort.join(","));
-    // if (newState.sort !== sort?.split(",")) {
-    // }
-    // setSort(newState);
-
-    // onGridStateChange({
-    //   filters: newState.filters,
-    //   stickyColumnName: newState.stickyColumnName,
-    // });
+    setStickyColumnName(newState.stickyColumnName);
   };
+
+  // TODO: If filename changes, we should probably clear the applied filters and sort
 
   if (queryResult.status === "loading") {
     return <LoadingState text="Loading data..." />;
@@ -147,6 +143,9 @@ export function JSONDetail(props: JSONDetailProps) {
               data={tabData.value}
               diffData={tabDiffData.value}
               defaultSort={sort ? sort.split(",") : undefined}
+              defaultStickyColumnName={
+                stickyColumnName ? stickyColumnName : undefined
+              }
               // defaultSort={sort?.split(",")}
               onChange={onGridChange}
             />
