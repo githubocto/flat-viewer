@@ -73,9 +73,8 @@ export function JSONDetail(props: JSONDetailProps) {
   const tabDiffData = diffData[tabIndex] || {};
 
   const onGridChange = (newState: GridState) => {
-    console.log("grid change", newState, sort);
+    setSort(newState.sort.join(","));
     // if (newState.sort !== sort?.split(",")) {
-    //   setSort(newState.sort.join(","));
     // }
     // setSort(newState);
 
@@ -147,7 +146,8 @@ export function JSONDetail(props: JSONDetailProps) {
             <Grid
               data={tabData.value}
               diffData={tabDiffData.value}
-              defaultSort={sort?.split(",")}
+              defaultSort={sort ? sort.split(",") : undefined}
+              // defaultSort={sort?.split(",")}
               onChange={onGridChange}
             />
           </div>
