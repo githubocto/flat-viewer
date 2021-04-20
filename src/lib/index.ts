@@ -41,7 +41,7 @@ export interface GridState {
 export type FilterValue = string | number | [number, number];
 export type FilterMap<T> = Record<string, T>;
 
-export function getFiltersAsString(filters: Record<string, FilterValue>) {
+export function encodeFilterString(filters: Record<string, FilterValue>) {
   return encodeURI(
     Object.keys(filters)
       .map((columnName) => {
@@ -57,4 +57,19 @@ export function getFiltersAsString(filters: Record<string, FilterValue>) {
       })
       .join("&")
   );
+}
+
+export function decodeFilterString(filterString?: string | null) {
+  if (!filterString) return undefined;
+  const splitFilters = decodeURI(filterString).split("&") || [];
+  let filters = {};
+  splitFilters.forEach((filter) => {
+    const [key, value] = filter.split("=");
+    if (!key || !value) return;
+    const isArray = value?.split(",").length === 2;
+    // @ts-ignore
+    filters[key] = isArray ? value.split(",").map((d) => +d) : value;
+  });
+
+  return filters;
 }

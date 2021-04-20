@@ -1,12 +1,11 @@
 import React from "react";
 import { Grid } from "@githubocto/flat-ui";
-import { useHistory } from "react-router-dom";
-import qs from "query-string";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import cc from "classcat";
 import truncate from "lodash.truncate";
+import isEqual from "lodash/isEqual";
 
-import { GridState } from "../lib";
+import { decodeFilterString, encodeFilterString, GridState } from "../lib";
 import { useDataFile } from "../hooks";
 import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
@@ -72,10 +71,20 @@ export function JSONDetail(props: JSONDetailProps) {
   const tabData = data[tabIndex] || {};
   const tabDiffData = diffData[tabIndex] || {};
 
+  const decodedFilterString = decodeFilterString(filters);
+
   const onGridChange = (newState: GridState) => {
-    console.log("change", newState);
-    setSort(newState.sort.join(","));
-    setStickyColumnName(newState.stickyColumnName);
+    if (!isEqual(newState.sort, sort?.split(","))) {
+      setSort(newState.sort.join(","));
+    }
+
+    if (!isEqual(newState.stickyColumnName, stickyColumnName)) {
+      setStickyColumnName(newState.stickyColumnName);
+    }
+
+    if (!isEqual(newState.filters, decodedFilterString)) {
+      setFilters(encodeFilterString(newState.filters));
+    }
   };
 
   // TODO: If filename changes, we should probably clear the applied filters and sort
@@ -146,7 +155,7 @@ export function JSONDetail(props: JSONDetailProps) {
               defaultStickyColumnName={
                 stickyColumnName ? stickyColumnName : undefined
               }
-              // defaultSort={sort?.split(",")}
+              defaultFilters={decodedFilterString}
               onChange={onGridChange}
             />
           </div>
