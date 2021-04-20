@@ -125,10 +125,6 @@ export function RepoDetail(props: RepoDetailProps) {
                   duration: 4000,
                 }
               );
-
-              // history.push({
-              //   search: qs.stringify({ sha: mostRecentCommitSha }),
-              // });
               setSelectedSha(mostRecentCommitSha);
             }
           } else {
@@ -143,7 +139,9 @@ export function RepoDetail(props: RepoDetailProps) {
 
   const parsedCommit = selectedSha
     ? parseFlatCommitMessage(
-        commits?.find((commit) => commit.sha === selectedSha)?.commit.message
+        commits?.find((commit) => commit.sha === selectedSha)?.commit.message ||
+          "",
+        filename || ""
       )
     : null;
   const dataSource = parsedCommit?.file?.source;
@@ -214,7 +212,7 @@ export function RepoDetail(props: RepoDetailProps) {
                 label="Choose a commit"
                 placeholder="Select a SHA"
                 onChange={setSelectedSha}
-                value={selectedSha}
+                value={selectedSha || ""}
                 items={commits.map((commit) => commit.sha)}
                 disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md"
                 itemRenderer={(sha) => {
@@ -296,8 +294,6 @@ export function RepoDetail(props: RepoDetailProps) {
             name={name as string}
             previousSha={selectedShaPrevious}
             sha={selectedSha}
-            urlGridState={urlGridState}
-            onGridStateChange={setGridState}
           />
         )}
       </React.Fragment>

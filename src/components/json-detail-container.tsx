@@ -20,22 +20,18 @@ interface JSONDetailProps {
   filename: string;
   owner: string;
   name: string;
-  urlGridState: GridState;
-  onGridStateChange: (newGridState: GridState) => void;
 }
 
 export function JSONDetail(props: JSONDetailProps) {
   const [tabName, setTabName] = useQueryParam("tab", StringParam);
+  const [stickyColumnName, setStickyColumnName] = useQueryParam(
+    "stickyColumnName",
+    StringParam
+  );
+  const [sort, setSort] = useQueryParam("sort", StringParam);
+  const [filters, setFilters] = useQueryParam("filters", StringParam);
 
-  const {
-    sha,
-    previousSha,
-    filename,
-    owner,
-    name,
-    urlGridState,
-    onGridStateChange,
-  } = props;
+  const { sha, previousSha, filename, owner, name } = props;
   const queryResult = useDataFile(
     {
       sha,
@@ -76,27 +72,17 @@ export function JSONDetail(props: JSONDetailProps) {
   const tabData = data[tabIndex] || {};
   const tabDiffData = diffData[tabIndex] || {};
 
-  // React.useEffect(() => {
-  //   if (!tabName && data.length > 0) {
-  //     setTabName(data[0].key || "");
-  //   }
-  // }, [validKeys, tabName, setTabName]);
-
-  // React.useEffect(() => {
-  //   if (dataKey) {
-  //     const currentQueryString = qs.parse(history.location.search);
-  //     history.push({
-  //       search: qs.stringify({ key: dataKey, sha: currentQueryString.sha }),
-  //     });
-  //   }
-  // }, [dataKey]);
-
   const onGridChange = (newState: GridState) => {
-    onGridStateChange({
-      filters: newState.filters,
-      sort: newState.sort,
-      stickyColumnName: newState.stickyColumnName,
-    });
+    console.log("grid change", newState, sort);
+    // if (newState.sort !== sort?.split(",")) {
+    //   setSort(newState.sort.join(","));
+    // }
+    // setSort(newState);
+
+    // onGridStateChange({
+    //   filters: newState.filters,
+    //   stickyColumnName: newState.stickyColumnName,
+    // });
   };
 
   if (queryResult.status === "loading") {
@@ -118,7 +104,7 @@ export function JSONDetail(props: JSONDetailProps) {
         {showKeyPicker && (
           <div className="w-full px-4 bg-indigo-600 ">
             <div className="flex space-x-2 overflow-x-auto">
-              {data.map(({ key }) => {
+              {data.map(({ key, value }) => {
                 const tabClass = cc([
                   "h-8 px-3 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative rounded-tl rounded-tr",
                   {
@@ -135,9 +121,9 @@ export function JSONDetail(props: JSONDetailProps) {
                     style={{ top: 1 }}
                   >
                     {key}{" "}
-                    <span className="opacity-75">
-                      ({tabData.value?.length} rows)
-                    </span>
+                    {value?.length && (
+                      <span className="opacity-75">({value?.length} rows)</span>
+                    )}
                   </button>
                 );
               })}
@@ -161,6 +147,7 @@ export function JSONDetail(props: JSONDetailProps) {
             <Grid
               data={tabData.value}
               diffData={tabDiffData.value}
+              defaultSort={sort?.split(",")}
               onChange={onGridChange}
             />
           </div>
