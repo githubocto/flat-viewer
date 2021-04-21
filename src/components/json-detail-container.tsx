@@ -102,6 +102,7 @@ export function JSONDetail(props: JSONDetailProps) {
       </ErrorState>
     );
   }
+  console.log(tabData, queryResult);
 
   return (
     <>
@@ -169,7 +170,7 @@ export function JSONDetail(props: JSONDetailProps) {
             reason.
           </ErrorState>
         )}
-        {tabName && !tabData.value && queryResult.status === "success" && (
+        {!tabData.value && queryResult.status === "success" && (
           <ErrorState img={Bug} alt="Error icon">
             Oh no, we can't load that type of data from{" "}
             <em className="text-underline font-normal">{filename}</em>.
