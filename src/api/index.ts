@@ -1,7 +1,6 @@
 import wretch from "wretch";
-import fromPairs from "lodash/fromPairs";
 import { Endpoints } from "@octokit/types";
-import { Repo, FlatDataTab } from "../types";
+import { Repo } from "../types";
 import { csvParse } from "d3-dsv";
 
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
@@ -131,6 +130,7 @@ export function fetchDataFile(params: FileParamsWithSHA) {
           ];
         }
       } catch (e) {
+        console.log(e);
         return [
           {
             invalidValue: stringifyValue(res),
