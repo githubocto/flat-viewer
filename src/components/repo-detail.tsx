@@ -1,8 +1,10 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
-import toast, { Toaster } from "react-hot-toast";
 import { useQueryParam, StringParam } from "use-query-params";
+import toast, { Toaster } from "react-hot-toast";
+import { ErrorState } from "./error-state";
+import Bug from "../bug.svg";
 
 import {
   BookmarkIcon,
@@ -118,20 +120,23 @@ export function RepoDetail(props: RepoDetailProps) {
             </a>
           </div>
         </div>
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-indigo-200">Data File</p>
-          <FilePicker
-            value={filename || ""}
-            placeholder="Select a file"
-            onChange={(newFilename) => {
-              setFilename(newFilename);
-            }}
-            items={files || []}
-            itemRenderer={(item) => (
-              <span className="font-mono text-xs">{item}</span>
-            )}
-          />
-        </div>
+        {!!(files || []).length && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-indigo-200">Data File</p>
+            <FilePicker
+              value={filename || ""}
+              placeholder="Select a file"
+              onChange={(newFilename) => {
+                setFilename(newFilename);
+              }}
+              items={files || []}
+              itemRenderer={(item) => (
+                <span className="font-mono text-xs">{item}</span>
+              )}
+            />
+          </div>
+        )}
+
         {Boolean(filename) && (
           <div className="space-y-2">
             <p className="text-xs font-medium text-indigo-200">Commit</p>
@@ -225,6 +230,13 @@ export function RepoDetail(props: RepoDetailProps) {
           />
         )}
       </React.Fragment>
+      {match && !(files || []).length && (
+        <ErrorState img={Bug} alt="Error icon">
+          {files
+            ? "Hmm, we couldn't find any files in that repo"
+            : "Hmm, are you sure that's a public GitHub repo?"}
+        </ErrorState>
+      )}
     </React.Fragment>
   );
 }

@@ -102,7 +102,6 @@ export function JSONDetail(props: JSONDetailProps) {
       </ErrorState>
     );
   }
-  console.log(tabData, queryResult);
 
   return (
     <>
