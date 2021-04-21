@@ -12,7 +12,7 @@ interface FlatFileCollection {
   files: FlatFileMeta[];
 }
 
-export function parseFlatCommitMessage(message?: string) {
+export function parseFlatCommitMessage(message: string, filename: string) {
   if (!message) return;
 
   const messageMatch = message.match(COMMIT_MESSAGE_REGEXP);
@@ -24,9 +24,11 @@ export function parseFlatCommitMessage(message?: string) {
   if (!metaMatch) return;
   const parsed = JSON.parse(metaMatch[0]) as FlatFileCollection;
 
+  const fileIndex = parsed.files.findIndex((d) => d.name === filename);
+
   return {
     message: extractedMessage,
-    file: parsed.files[0],
+    file: parsed.files[fileIndex],
   };
 }
 
@@ -39,7 +41,7 @@ export interface GridState {
 export type FilterValue = string | number | [number, number];
 export type FilterMap<T> = Record<string, T>;
 
-export function getFiltersAsString(filters: Record<string, FilterValue>) {
+export function encodeFilterString(filters: Record<string, FilterValue>) {
   return encodeURI(
     Object.keys(filters)
       .map((columnName) => {
@@ -55,4 +57,19 @@ export function getFiltersAsString(filters: Record<string, FilterValue>) {
       })
       .join("&")
   );
+}
+
+export function decodeFilterString(filterString?: string | null) {
+  if (!filterString) return undefined;
+  const splitFilters = decodeURI(filterString).split("&") || [];
+  let filters = {};
+  splitFilters.forEach((filter) => {
+    const [key, value] = filter.split("=");
+    if (!key || !value) return;
+    const isArray = value?.split(",").length === 2;
+    // @ts-ignore
+    filters[key] = isArray ? value.split(",").map((d) => +d) : value;
+  });
+
+  return filters;
 }

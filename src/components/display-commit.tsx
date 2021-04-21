@@ -3,15 +3,28 @@ import cc from "classcat";
 import { parseFlatCommitMessage } from "../lib";
 
 interface DisplayCommitProps {
+  author?: string;
   message?: string;
+  filename?: string | null;
 }
 
 export function DisplayCommit(props: DisplayCommitProps) {
-  const { message } = props;
+  const { author, message, filename } = props;
 
   if (!message) return null;
 
-  const parsed = parseFlatCommitMessage(message);
+  const isFlatCommit = author === "flat-data@users.noreply.github.com";
+  if (!isFlatCommit)
+    return (
+      <div className="flex items-center justify-between">
+        <div className="truncate">
+          <span className="font-mono">{message}</span>
+        </div>
+      </div>
+    );
+
+  const parsed = parseFlatCommitMessage(message, filename || "");
+
   if (!parsed)
     return (
       <div className="flex items-center justify-between truncate">
@@ -34,10 +47,11 @@ export function DisplayCommit(props: DisplayCommitProps) {
       <div className="truncate">
         <span className="font-mono">{parsed.message}</span>
       </div>
+
       <div className="pl-4 flex-shrink-0">
         <span className={byteClass}>
           <span>{negativeDelta ? "-" : "+"}</span>
-          {Math.abs(parsed.file.deltaBytes)}b
+          {Math.abs(parsed.file?.deltaBytes)}b
         </span>
       </div>
     </div>

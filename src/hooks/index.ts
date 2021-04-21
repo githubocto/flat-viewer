@@ -10,7 +10,7 @@ import {
   listCommitsResponse,
   fetchFilesFromRepo,
 } from "../api";
-import { Repo } from "../types";
+import { Repo, FlatDataTab } from "../types";
 import React from "react";
 
 // Hooks
@@ -35,7 +35,7 @@ export function useCommits(
 
 export function useDataFile(
   params: FileParamsWithSHA,
-  config?: UseQueryOptions<string>
+  config?: UseQueryOptions<FlatDataTab[]>
 ) {
   return useQuery(["data", params], () => fetchDataFile(params), {
     retry: false,

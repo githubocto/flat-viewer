@@ -1,22 +1,22 @@
 import React from "react";
-import { RouteComponentProps, useHistory } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import formatDistance from "date-fns/formatDistance";
-import qs from "query-string";
 import toast, { Toaster } from "react-hot-toast";
+import { useQueryParam, StringParam } from "use-query-params";
+
 import {
   BookmarkIcon,
   CommitIcon,
   LinkExternalIcon,
   RepoIcon,
 } from "@primer/octicons-react";
-import { debounce } from "lodash";
 import { Title } from "react-head";
 
 import { useCommits, useGetFiles } from "../hooks";
 import { Repo } from "../types";
 
 import { JSONDetail } from "./json-detail-container";
-import { getFiltersAsString, GridState, parseFlatCommitMessage } from "../lib";
+import { parseFlatCommitMessage } from "../lib";
 import { Picker } from "./picker";
 import { FilePicker } from "./file-picker";
 import { DisplayCommit } from "./display-commit";
@@ -26,28 +26,9 @@ interface RepoDetailProps extends RouteComponentProps<Repo> {}
 export function RepoDetail(props: RepoDetailProps) {
   const { match } = props;
   const { owner, name } = match.params;
-  const currentGridUrlParamString = React.useRef("");
+  const [filename, setFilename] = useQueryParam("filename", StringParam);
+  const [selectedSha, setSelectedSha] = useQueryParam("sha", StringParam);
 
-  const history = useHistory();
-  const parsedQueryString = qs.parse(history.location.search);
-
-  const [selectedSha, setSelectedSha] = React.useState<string>(
-    (parsedQueryString?.sha as string) || ""
-  );
-
-  const [gridState, setGridState] = React.useState<GridState>({
-    filters: {},
-    sort: [],
-    stickyColumnName: undefined,
-  });
-  const [urlGridState, setUrlGridState] = React.useState<GridState>({
-    filters: {},
-    sort: [],
-    stickyColumnName: undefined,
-  });
-  const [filename, setFilename] = React.useState<string | undefined>(
-    parsedQueryString?.filename as string
-  );
   const { data: files } = useGetFiles(
     { owner, name },
     {
@@ -57,57 +38,6 @@ export function RepoDetail(props: RepoDetailProps) {
       },
     }
   );
-  const updateGridStateFromFilters = () => {
-    const splitFilters =
-      // @ts-ignore
-      decodeURI(parsedQueryString?.filters || "").split("&") || [];
-    let filters = {};
-    splitFilters.forEach((filter) => {
-      const [key, value] = filter.split("=");
-      if (!key || !value) return;
-      const isArray = value?.split(",").length === 2;
-      // @ts-ignore
-      filters[key] = isArray ? value.split(",").map((d) => +d) : value;
-    });
-    // @ts-ignore
-    const sort = decodeURIComponent(parsedQueryString?.sort || "")?.split(",");
-    const stickyColumnName =
-      typeof parsedQueryString?.stickyColumnName === "string"
-        ? parsedQueryString?.stickyColumnName
-        : "";
-    setUrlGridState({ filters, sort, stickyColumnName });
-  };
-  React.useEffect(updateGridStateFromFilters, [selectedSha]);
-
-  const gridStateFiltersString = getFiltersAsString(gridState.filters);
-  const gridStateSortString = gridState.sort.join(",");
-
-  const updateUrlParams = React.useCallback(
-    debounce(() => {
-      history.push({
-        search: currentGridUrlParamString.current,
-      });
-    }, 1200),
-    []
-  );
-  React.useEffect(() => {
-    const currentQueryString = qs.parse(history.location.search);
-    currentGridUrlParamString.current = qs.stringify({
-      sha: selectedSha,
-      key: currentQueryString.key,
-      filters: gridStateFiltersString,
-      sort: gridStateSortString,
-      stickyColumnName: gridState.stickyColumnName,
-      filename,
-    });
-    updateUrlParams();
-  }, [
-    selectedSha,
-    gridStateFiltersString,
-    gridStateSortString,
-    gridState.stickyColumnName,
-    filename,
-  ]);
 
   // Hook for fetching commits, once we've determined this is a Flat repo.
   const { data: commits = [] } = useCommits(
@@ -128,10 +58,6 @@ export function RepoDetail(props: RepoDetailProps) {
                   duration: 4000,
                 }
               );
-
-              history.push({
-                search: qs.stringify({ sha: mostRecentCommitSha }),
-              });
               setSelectedSha(mostRecentCommitSha);
             }
           } else {
@@ -146,7 +72,9 @@ export function RepoDetail(props: RepoDetailProps) {
 
   const parsedCommit = selectedSha
     ? parseFlatCommitMessage(
-        commits?.find((commit) => commit.sha === selectedSha)?.commit.message
+        commits?.find((commit) => commit.sha === selectedSha)?.commit.message ||
+          "",
+        filename || ""
       )
     : null;
   const dataSource = parsedCommit?.file?.source;
@@ -195,7 +123,9 @@ export function RepoDetail(props: RepoDetailProps) {
           <FilePicker
             value={filename || ""}
             placeholder="Select a file"
-            onChange={setFilename}
+            onChange={(newFilename) => {
+              setFilename(newFilename);
+            }}
             items={files || []}
             itemRenderer={(item) => (
               <span className="font-mono text-xs">{item}</span>
@@ -210,14 +140,18 @@ export function RepoDetail(props: RepoDetailProps) {
                 label="Choose a commit"
                 placeholder="Select a SHA"
                 onChange={setSelectedSha}
-                value={selectedSha}
+                value={selectedSha || ""}
                 items={commits.map((commit) => commit.sha)}
                 disclosureClass="appearance-none bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 px-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md"
                 itemRenderer={(sha) => {
                   const commit = commits.find((commit) => commit.sha === sha);
                   return (
                     <div className="flex flex-col space-y-1 text-xs">
-                      <DisplayCommit message={commit?.commit.message} />
+                      <DisplayCommit
+                        message={commit?.commit.message}
+                        author={commit?.commit.author?.email}
+                        filename={filename}
+                      />
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center space-x-2">
                           <p className="text-gray-600">
@@ -241,6 +175,11 @@ export function RepoDetail(props: RepoDetailProps) {
                           commits.find((commit) => commit.sha === sha)?.commit
                             .message
                         }
+                        author={
+                          commits.find((commit) => commit.sha === sha)?.commit
+                            .author?.email
+                        }
+                        filename={filename}
                       />
                     </div>
                   </div>
@@ -283,8 +222,6 @@ export function RepoDetail(props: RepoDetailProps) {
             name={name as string}
             previousSha={selectedShaPrevious}
             sha={selectedSha}
-            urlGridState={urlGridState}
-            onGridStateChange={setGridState}
           />
         )}
       </React.Fragment>

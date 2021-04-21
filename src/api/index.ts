@@ -1,6 +1,7 @@
 import wretch from "wretch";
+import fromPairs from "lodash/fromPairs";
 import { Endpoints } from "@octokit/types";
-import { Repo } from "../types";
+import { Repo, FlatDataTab } from "../types";
 import { csvParse } from "d3-dsv";
 
 export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
@@ -73,7 +74,7 @@ export async function fetchFilesFromRepo({ owner, name }: Repo) {
 }
 
 export interface FileParams {
-  filename?: string;
+  filename?: string | null;
   owner: string;
   name: string;
 }
@@ -102,10 +103,10 @@ export function fetchCommits(params: FileParams) {
 
 export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
-  if (!filename) return;
+  if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
   const validTypes = ["csv", "json"];
-  if (!validTypes.includes(fileType)) return;
+  if (!validTypes.includes(fileType)) return [];
 
   return wretch()
     .url(
@@ -116,18 +117,78 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       throw new Error("Data file not found");
     })
     .text((res) => {
-      const data = fileType === "csv" ? csvParse(res) : JSON.parse(res);
+      let data: any;
+      try {
+        if (fileType === "csv") {
+          data = csvParse(res);
+        } else if (fileType === "json") {
+          data = JSON.parse(res);
+        } else {
+          return [
+            {
+              invalidValue: stringifyValue(res),
+            },
+          ];
+        }
+      } catch (e) {
+        return [
+          {
+            invalidValue: stringifyValue(res),
+          },
+        ];
+      }
+
+      if (typeof data !== "object") {
+        return [
+          {
+            invalidValue: stringifyValue(data),
+          },
+        ];
+      }
+
+      const isArray = Array.isArray(data);
+      if (isArray) {
+        return [
+          {
+            value: data,
+          },
+        ];
+      }
+
       const keys = Object.keys(data);
 
       const isObjectOfObjects =
         keys.length && !Object.values(data).find(Array.isArray);
+
       if (!isObjectOfObjects)
-        return Array.isArray(data) ? data.filter(Boolean) : data;
+        return keys.map((key) => {
+          const value = data[key];
+          if (!Array.isArray(value)) {
+            return {
+              key,
+              invalidValue: stringifyValue(value),
+            };
+          }
+
+          return {
+            key,
+            value,
+          };
+        });
 
       let parsedData = <any[]>[];
       keys.forEach((key) => {
         parsedData = [...parsedData, { ...data[key], id: key }];
       });
-      return parsedData;
+      return [
+        {
+          value: parsedData,
+        },
+      ];
     });
 }
+
+const stringifyValue = (data: any) => {
+  if (typeof data === "object") return JSON.stringify(data, undefined, 2);
+  return data.toString();
+};
