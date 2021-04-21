@@ -9,8 +9,9 @@ html {
   height: 100%;
 }
 
+html::selection,
 ::selection {
-  background: theme("colors.indigo.900");
+  background: theme("colors.indigo.900") !important;
   color: theme("colors.white");
 }
 
