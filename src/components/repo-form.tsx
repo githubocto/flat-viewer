@@ -21,9 +21,8 @@ function RepoFormComponent(props: FormikProps<Repo>) {
     cc([
       `appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:z-10 text-sm`,
       {
-        "border-red-200 bg-red-50 focus:ring-red-500 focus:border-red-500": Boolean(
-          props.errors[name]
-        ),
+        "border-red-200 bg-red-50 focus:ring-red-500 focus:border-red-500":
+          Boolean(props.errors[name]),
         "focus:ring-gray-500 focus:border-gray-500": !Boolean(
           props.errors[name]
         ),
@@ -85,10 +84,10 @@ function RepoFormComponent(props: FormikProps<Repo>) {
           <p className="text-gray-500 text-sm">Start with example:</p>
           <div className="flex items-center space-x-2">
             <Link
-              to="/githubocto/flat-demo"
+              to="/githubocto/flat-demo-bitcoin-price"
               className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-900 hover:bg-gray-700 text-white font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
-              githubocto/flat-demo
+              githubocto/flat-demo-bitcoin-price
             </Link>
           </div>
         </div>
