@@ -72,3 +72,13 @@ body,
 .max-w-prose {
   max-width: 80ch;
 }
+
+.controls {
+  display: none;
+}
+
+@screen lg {
+  .controls {
+    display: block;
+  }
+}
