@@ -1,6 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { GoThreeBars, GoX } from "react-icons/go";
+import { BsArrowRightShort } from "react-icons/bs";
 import {
   useDisclosureState,
   Disclosure,
@@ -28,6 +29,7 @@ import { parseFlatCommitMessage } from "../lib";
 import { Picker } from "./picker";
 import { FilePicker } from "./file-picker";
 import { DisplayCommit } from "./display-commit";
+import truncate from "lodash/truncate";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
@@ -248,6 +250,24 @@ export function RepoDetail(props: RepoDetailProps) {
         >
           {controls}
         </DisclosureContent>
+        <Disclosure
+          {...disclosure}
+          className="rounded-none focus:outline-none focus:ring lg:hidden text-white text-xl"
+        >
+          {!disclosure.visible && (
+            <div className="flex items-center lg:hidden mt-4 text-white text-xs">
+              <span className="">{truncate(`${owner}/${name}`)}</span>
+              {Boolean(filename) && (
+                <>
+                  <span className="mx-1">
+                    <BsArrowRightShort />
+                  </span>{" "}
+                  {truncate(filename || "")}
+                </>
+              )}
+            </div>
+          )}
+        </Disclosure>
         <div className="controls mt-4">{controls}</div>
       </div>
 
