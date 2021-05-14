@@ -40,7 +40,11 @@ export function RepoDetail(props: RepoDetailProps) {
   const [selectedSha, setSelectedSha] = useQueryParam("sha", StringParam);
   const disclosure = useDisclosureState();
 
-  const { data: files, status: filesStatus } = useGetFiles(
+  const {
+    data: files,
+    status: filesStatus,
+    error: filesError,
+  } = useGetFiles(
     { owner, name },
     {
       onSuccess: (data) => {
@@ -272,7 +276,7 @@ export function RepoDetail(props: RepoDetailProps) {
       </div>
 
       <React.Fragment>
-        {selectedSha && Boolean(filename) && (
+        {selectedSha && Boolean(filename) && filesStatus !== "error" && (
           <JSONDetail
             key={selectedSha}
             filename={filename || ""}
@@ -283,6 +287,12 @@ export function RepoDetail(props: RepoDetailProps) {
           />
         )}
       </React.Fragment>
+      {filesStatus === "error" && (
+        <ErrorState img={Bug} alt="Error icon">
+          {/* @ts-ignore */}
+          {(filesError && filesError?.message) || "Something went wrong"}
+        </ErrorState>
+      )}
       {match &&
         !(files || []).length &&
         filesStatus !== "loading" &&
