@@ -1,10 +1,19 @@
 import wretch from "wretch";
 import { Endpoints } from "@octokit/types";
+import store from "store2";
+
 import { Repo } from "../types";
 import { csvParse } from "d3-dsv";
 
 export type listCommitsResponse =
   Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
+
+const githubApiURL = `https://api.github.com`;
+const cachedPat = store.get("flat-viewer-pat");
+
+const githubWretch = cachedPat
+  ? wretch(githubApiURL).auth(`token ${cachedPat}`)
+  : wretch(githubApiURL);
 
 export async function fetchFlatYaml(repo: Repo) {
   let res;
@@ -52,10 +61,8 @@ const getFilesFromRes = (res: any) => {
 };
 
 function tryBranch(owner: string, name: string, branch: string) {
-  return wretch()
-    .url(
-      `https://api.github.com/repos/${owner}/${name}/git/trees/${branch}?recursive=1`
-    )
+  return githubWretch
+    .url(`/repos/${owner}/${name}/git/trees/${branch}?recursive=1`)
     .get()
     .notFound((e) => {
       throw new Error("File not found");
@@ -102,8 +109,8 @@ export interface FileParamsWithSHA extends FileParams {
 export function fetchCommits(params: FileParams) {
   const { name, owner, filename } = params;
 
-  return wretch()
-    .url(`https://api.github.com/repos/${owner}/${name}/commits`)
+  return githubWretch
+    .url(`/repos/${owner}/${name}/commits`)
     .query({
       path: filename,
     })
