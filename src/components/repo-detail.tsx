@@ -49,7 +49,7 @@ export function RepoDetail(props: RepoDetailProps) {
     {
       onSuccess: (data) => {
         if (!data.length) return;
-        setFilename(data[0]);
+        setFilename(filename || data[0]);
       },
     }
   );
