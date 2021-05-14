@@ -3,7 +3,8 @@ import { Endpoints } from "@octokit/types";
 import { Repo } from "../types";
 import { csvParse } from "d3-dsv";
 
-export type listCommitsResponse = Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
+export type listCommitsResponse =
+  Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
 export async function fetchFlatYaml(repo: Repo) {
   let res;
@@ -56,20 +57,36 @@ function tryBranch(owner: string, name: string, branch: string) {
       `https://api.github.com/repos/${owner}/${name}/git/trees/${branch}?recursive=1`
     )
     .get()
-    .notFound(() => {
+    .notFound((e) => {
       throw new Error("File not found");
     })
+    .error(403, (e: any) => {
+      const message = JSON.parse(e.message).message;
+      if (message.includes("API rate limit exceeded")) {
+        throw new Error("Rate limit exceeded");
+      }
+      throw new Error(e);
+    })
     .json((res) => {
+      console.log("res", res);
       return getFilesFromRes(res);
     });
 }
 
 export async function fetchFilesFromRepo({ owner, name }: Repo) {
-  const files = await Promise.any([
-    tryBranch(owner, name, "master"),
-    tryBranch(owner, name, "main"),
-  ]);
-  return files;
+  try {
+    let files = await tryBranch(owner, name, "main");
+    if (typeof files !== "string") return files;
+    files = await tryBranch(owner, name, "master");
+    if (typeof files !== "string") return files;
+
+    if (files == "Rate limit exceeded") {
+      throw new Error("Rate limit exceeded");
+    }
+    throw new Error(files);
+  } catch (e) {
+    throw new Error(e);
+  }
 }
 
 export interface FileParams {
