@@ -287,12 +287,6 @@ export function RepoDetail(props: RepoDetailProps) {
           />
         )}
       </React.Fragment>
-      {filesStatus === "error" && (
-        <ErrorState img={Bug} alt="Error icon">
-          {/* @ts-ignore */}
-          {(filesError && filesError?.message) || "Something went wrong"}
-        </ErrorState>
-      )}
       {match &&
         !(files || []).length &&
         filesStatus !== "loading" &&
@@ -300,6 +294,10 @@ export function RepoDetail(props: RepoDetailProps) {
           <ErrorState img={Bug} alt="Error icon">
             {files
               ? "Hmm, we couldn't find any files in that repo"
+              : // @ts-ignore
+              filesError && filesError?.message === "Error: Rate limit exceeded"
+              ? // @ts-ignore
+                filesError?.message
               : "Hmm, are you sure that's a public GitHub repo?"}
           </ErrorState>
         )}
