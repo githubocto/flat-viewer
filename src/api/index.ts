@@ -82,17 +82,18 @@ function tryBranch(owner: string, name: string, branch: string) {
 
 export async function fetchFilesFromRepo({ owner, name }: Repo) {
   try {
-    let files = await tryBranch(owner, name, "main");
+    const files = await tryBranch(owner, name, "main");
     if (typeof files !== "string") return files;
-    files = await tryBranch(owner, name, "master");
-    if (typeof files !== "string") return files;
-
-    if (files == "Rate limit exceeded") {
-      throw new Error("Rate limit exceeded");
-    }
-    throw new Error(files);
   } catch (e) {
-    throw new Error(e);
+    try {
+      const files = await tryBranch(owner, name, "master");
+      if (typeof files !== "string") return files;
+    } catch (e) {
+      if (e.message == "Rate limit exceeded") {
+        throw new Error("Rate limit exceeded");
+      }
+      throw new Error(e);
+    }
   }
 }
 

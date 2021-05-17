@@ -287,20 +287,17 @@ export function RepoDetail(props: RepoDetailProps) {
           />
         )}
       </React.Fragment>
-      {match &&
-        !(files || []).length &&
-        filesStatus !== "loading" &&
-        !filename && (
-          <ErrorState img={Bug} alt="Error icon">
-            {files
-              ? "Hmm, we couldn't find any files in that repo"
-              : // @ts-ignore
-              filesError && filesError?.message === "Error: Rate limit exceeded"
-              ? // @ts-ignore
-                filesError?.message
-              : "Hmm, are you sure that's a public GitHub repo?"}
-          </ErrorState>
-        )}
+      {match && !(files || []).length && filesStatus !== "loading" && (
+        <ErrorState img={Bug} alt="Error icon">
+          {files
+            ? "Hmm, we couldn't find any files in that repo"
+            : // @ts-ignore
+            filesError && filesError?.message === "Error: Rate limit exceeded"
+            ? // @ts-ignore
+              filesError?.message
+            : "Hmm, are you sure that's a public GitHub repo?"}
+        </ErrorState>
+      )}
     </React.Fragment>
   );
 }
