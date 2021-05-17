@@ -40,3 +40,7 @@ flatgithub.com will automatically re-build and deploy when changes are pushed to
 If you run into any trouble or have questions, feel free to [open an issue](https://github.com/githubocto/flat-editor/issues).
 
 ❤️ GitHub OCTO
+
+## License
+
+[MIT](LICENSE)
