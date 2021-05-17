@@ -1,5 +1,7 @@
 # Flat Viewer
 
+👉🏽 👉🏽 👉🏽 **Full writeup**: [Flat Data Project](https://octo.github.com/projects/flat-data) 👈🏽 👈🏽 👈🏽
+
 Flat Viewer is a tool to view un-nested data (CSV & JSON files) in an interactive table. The table has various affordances for exploring the data, such as:
 
 - filtering
@@ -9,7 +11,9 @@ Flat Viewer is a tool to view un-nested data (CSV & JSON files) in an interactiv
 
 ![Flat Viewer](./screeenshot.png)
 
-Flat is an experiment from [GitHub's Office of the CTO](https://octo.github.com) to make it easier for anyone to explore data stored in a Git repository.
+## What is Flat Data? 
+
+Flat Viewer is part of a larger project to make it easy to fetch and commit data into GitHub repositories. The action is intended to be run on a schedule, retrieving data from any supported target and creating a commit if there is any change to the fetched data. Flat Data builds on the [“git scraping” approach pioneered by Simon Willison](https://simonwillison.net/2020/Oct/9/git-scraping/) to offer a simple pattern for bringing working datasets into your repositories and versioning them, because developing against local datasets is faster and easier than working with data over the wire.
 
 ## Usage
 
@@ -17,8 +21,6 @@ To use Flat Viewer, prepend `flat` to the URL of your GitHub repo:
 
 from: [`github.com/githubocto/flat-demo-covid-dashboard`](http://github.com/githubocto/flat-demo-covid-dashboard)
 to: [`flatgithub.com/githubocto/flat-demo-covid-dashboard`](http://flatgithub.com/githubocto/flat-demo-covid-dashboard)
-
-Flat Viewer will let you choose a specific CSV or JSON file in your repo, as well as the specific commit to view.
 
 ## Development
 
@@ -35,6 +37,6 @@ flatgithub.com will automatically re-build and deploy when changes are pushed to
 
 ## Issues
 
-If you run into any trouble or have questions, feel free to [open an issue](https://github.com/githubocto/flat-editor/issues). Sharing your `flat.yml` with us in the issue will help us understand what might be happening.
+If you run into any trouble or have questions, feel free to [open an issue](https://github.com/githubocto/flat-editor/issues).
 
 ❤️ GitHub OCTO
