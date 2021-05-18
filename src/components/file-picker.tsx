@@ -27,6 +27,7 @@ export function FilePicker(props: FilePickerProps) {
   } = props;
 
   const [inputValue, setInputValue] = React.useState<string>("");
+  const inputElement = React.useRef<HTMLInputElement>(null);
 
   const filteredItems = (items || []).filter((file: string) => {
     const hasFilterString = value === inputValue || file.includes(inputValue);
@@ -55,6 +56,7 @@ export function FilePicker(props: FilePickerProps) {
     onSelectedItemChange: ({ selectedItem }) => {
       if (!selectedItem) return;
       onChange(selectedItem);
+      if (inputElement.current) inputElement.current.blur();
     },
   });
 
@@ -90,6 +92,7 @@ export function FilePicker(props: FilePickerProps) {
                 openMenu();
                 e.target.select();
               },
+              ref: inputElement,
             })}
           />
 
