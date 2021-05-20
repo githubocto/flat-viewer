@@ -3,7 +3,7 @@ import { Endpoints } from "@octokit/types";
 import store from "store2";
 
 import { Repo } from "../types";
-import { csvParse } from "d3-dsv";
+import { csvParse, tsvParse } from "d3-dsv";
 
 export type listCommitsResponse =
   Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
@@ -51,7 +51,7 @@ const getFilesFromRes = (res: any) => {
     .map((file: any) => file.path)
     .filter((path: string) => {
       const extension = path.split(".").pop() || "";
-      const validExtensions = ["csv", "json"];
+      const validExtensions = ["csv", "tsv", "json"];
       return (
         validExtensions.includes(extension) &&
         !ignoredFiles.includes(path.split("/").slice(-1)[0]) &&
@@ -129,7 +129,7 @@ export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
-  const validTypes = ["csv", "json"];
+  const validTypes = ["csv", "tsv", "json"];
   if (!validTypes.includes(fileType)) return [];
 
   return wretch()
@@ -147,6 +147,8 @@ export function fetchDataFile(params: FileParamsWithSHA) {
           data = csvParse(res);
         } else if (fileType === "json") {
           data = JSON.parse(res);
+        } else if (fileType === "tsv") {
+          data = tsvParse(res);
         } else {
           return [
             {
