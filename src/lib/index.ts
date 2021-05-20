@@ -22,14 +22,18 @@ export function parseFlatCommitMessage(message: string, filename: string) {
   const extractedMessage = messageMatch[0].trim();
 
   if (!metaMatch) return;
-  const parsed = JSON.parse(metaMatch[0]) as FlatFileCollection;
+  try {
+    const parsed = JSON.parse(metaMatch[0]) as FlatFileCollection;
 
-  const fileIndex = parsed.files.findIndex((d) => d.name === filename);
+    const fileIndex = parsed.files.findIndex((d) => d.name === filename);
 
-  return {
-    message: extractedMessage,
-    file: parsed.files[fileIndex],
-  };
+    return {
+      message: extractedMessage,
+      file: parsed.files[fileIndex],
+    };
+  } catch (e) {
+    return {};
+  }
 }
 
 export interface GridState {
