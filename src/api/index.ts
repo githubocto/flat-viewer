@@ -195,6 +195,13 @@ export function fetchDataFile(params: FileParamsWithSHA) {
             };
           }
 
+          if (typeof value[0] === "string") {
+            return {
+              key,
+              value: value.map((d) => ({ value: d })),
+            };
+          }
+
           return {
             key,
             value,
