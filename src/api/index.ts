@@ -1,6 +1,7 @@
 import wretch from "wretch";
 import { Endpoints } from "@octokit/types";
 import store from "store2";
+import YAML from "yaml";
 
 import { Repo } from "../types";
 import { csvParse, tsvParse } from "d3-dsv";
@@ -51,7 +52,7 @@ const getFilesFromRes = (res: any) => {
     .map((file: any) => file.path)
     .filter((path: string) => {
       const extension = path.split(".").pop() || "";
-      const validExtensions = ["csv", "tsv", "json"];
+      const validExtensions = ["csv", "tsv", "json", "yml", "yaml"];
       return (
         validExtensions.includes(extension) &&
         !ignoredFiles.includes(path.split("/").slice(-1)[0]) &&
@@ -129,7 +130,7 @@ export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
-  const validTypes = ["csv", "tsv", "json"];
+  const validTypes = ["csv", "tsv", "json", "yml", "yaml"];
   if (!validTypes.includes(fileType)) return [];
 
   return wretch()
@@ -149,6 +150,8 @@ export function fetchDataFile(params: FileParamsWithSHA) {
           data = JSON.parse(res);
         } else if (fileType === "tsv") {
           data = tsvParse(res);
+        } else if (fileType === "yml" || fileType === "yaml") {
+          data = YAML.parse(res);
         } else {
           return [
             {
