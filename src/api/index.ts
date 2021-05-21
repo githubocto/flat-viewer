@@ -76,7 +76,6 @@ function tryBranch(owner: string, name: string, branch: string) {
       throw new Error(e);
     })
     .json((res) => {
-      console.log("res", res);
       return getFilesFromRes(res);
     });
 }
@@ -188,7 +187,10 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       const keys = Object.keys(data);
 
       const isObjectOfObjects =
-        keys.length && !Object.values(data).find(Array.isArray);
+        keys.length &&
+        !Object.values(data).find(
+          (d) => typeof d !== "object" || Array.isArray(d)
+        );
 
       if (!isObjectOfObjects)
         return keys.map((key) => {
