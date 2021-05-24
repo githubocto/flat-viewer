@@ -230,10 +230,10 @@
   dependencies:
     purgecss "^3.1.3"
 
-"@githubocto/flat-ui@^0.7.5":
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/@githubocto/flat-ui/-/flat-ui-0.7.5.tgz#653d1879016afb34dab73927eebe7f29ec9bc34c"
-  integrity sha512-l2Q8Y72KpYUL7e68QZP7ki8oUJIY3F+d+Jcfs6lWMm317aXNPaUeg7ajDd3B/exOc6L3XctLjOtb4MwfaPVqSQ==
+"@githubocto/flat-ui@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@githubocto/flat-ui/-/flat-ui-0.8.0.tgz#85b83f3c63631edb8f06f00bcb7b0fae35f3411e"
+  integrity sha512-c/HYMm/+SUHafJpGCNoPfZE043f3RUdNg11BXtvqt0AGRVZaB0gUCQxe9t8MLBQA6gdLXAuUeJEDr2qIse4sgg==
   dependencies:
     "@primer/octicons-react" "^12.1.0"
     "@radix-ui/react-dropdown-menu" "^0.0.10"
