@@ -10,7 +10,7 @@ import { LoadingState } from "./loading-state";
 import { ErrorState } from "./error-state";
 import { EmptyState } from "./empty-state";
 import Bug from "../bug.svg";
-import { StringParam, useQueryParam } from "use-query-params";
+import { StringParam, useQueryParams } from "use-query-params";
 
 interface JSONDetailProps {
   sha: string;
@@ -21,13 +21,12 @@ interface JSONDetailProps {
 }
 
 export function JSONDetail(props: JSONDetailProps) {
-  const [tabName, setTabName] = useQueryParam("tab", StringParam);
-  const [stickyColumnName, setStickyColumnName] = useQueryParam(
-    "stickyColumnName",
-    StringParam
-  );
-  const [sort, setSort] = useQueryParam("sort", StringParam);
-  const [filters, setFilters] = useQueryParam("filters", StringParam);
+  const [query, setQuery] = useQueryParams({
+    tab: StringParam,
+    stickyColumnName: StringParam,
+    sort: StringParam,
+    filters: StringParam,
+  });
 
   const { sha, previousSha, filename, owner, name } = props;
   const queryResult = useDataFile(
@@ -39,11 +38,11 @@ export function JSONDetail(props: JSONDetailProps) {
     },
     {
       onSuccess: (data) => {
-        const newTab =
-          tabName && data.find((d) => d.key === tabName)
-            ? tabName
+        const tab =
+          query.tab && data.find((d) => d.key === query.tab)
+            ? query.tab
             : (data.find((d) => d.key) || {}).key;
-        setTabName(newTab);
+        setQuery({ tab });
       },
     }
   );
@@ -66,12 +65,22 @@ export function JSONDetail(props: JSONDetailProps) {
 
   const showKeyPicker = data.length > 1;
 
-  const tabIndex = data.findIndex((d) => d?.key === tabName) || 0;
+  const tabIndex = data.findIndex((d) => d?.key === query.tab) || 0;
   const tabData = data[tabIndex] || {};
   const tabDiffData = diffData[tabIndex] || {};
 
-  const decodedFilterString = decodeFilterString(filters);
+  const decodedFilterString = decodeFilterString(query.filters);
   const [hasMounted, setHasMounted] = React.useState(false);
+
+  const onTabChange = (tab: string) => setQuery(
+    {
+      tab,
+      sort: undefined,
+      stickyColumnName: undefined,
+      filters: undefined,
+    },
+    "replaceIn"
+  );
 
   const onGridChange = (newState: GridState) => {
     if (!hasMounted) {
@@ -79,17 +88,25 @@ export function JSONDetail(props: JSONDetailProps) {
       return;
     }
 
-    setSort(newState.sort.join(","));
-    setStickyColumnName(newState.stickyColumnName);
-    setFilters(encodeFilterString(newState.filters));
+    setQuery({
+      sort: newState.sort.join(","),
+      stickyColumnName: newState.stickyColumnName,
+      filters: encodeFilterString(newState.filters),
+    });
   };
 
   React.useEffect(() => {
     if (!hasMounted) return;
-    setSort(undefined, "replaceIn");
-    setStickyColumnName(undefined, "replaceIn");
-    setFilters(undefined, "replaceIn");
-  }, [tabName, filename]);
+
+    setQuery(
+      {
+        sort: undefined,
+        stickyColumnName: undefined,
+        filters: undefined,
+      },
+      "replaceIn"
+    );
+  }, [filename]);
 
   if (queryResult.status === "loading") {
     return <LoadingState text="Loading data..." />;
@@ -114,14 +131,14 @@ export function JSONDetail(props: JSONDetailProps) {
                 const tabClass = cc([
                   "h-8 px-3 flex-shrink-0 appearance-none focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-600 border-b relative rounded-tl rounded-tr",
                   {
-                    "text-indigo-600 font-medium bg-white": key === tabName,
+                    "text-indigo-600 font-medium bg-white": key === query.tab,
                     "bg-transparent border-transparent hover:bg-indigo-700 hover:border-indigo-200 focus:bg-indigo-700 focus:border-indigo-200 text-white":
-                      key !== tabName,
+                      key !== query.tab,
                   },
                 ]);
                 return (
                   <button
-                    onClick={() => setTabName(key)}
+                    onClick={() => key && onTabChange(key)}
                     className={tabClass}
                     key={key}
                     style={{ top: 1 }}
@@ -136,7 +153,7 @@ export function JSONDetail(props: JSONDetailProps) {
             </div>
           </div>
         )}
-        {showKeyPicker && !tabName && (
+        {showKeyPicker && !query.tab && (
           <EmptyState alt="Empty state icon">
             <div className="space-y-4">
               <div>
@@ -153,9 +170,9 @@ export function JSONDetail(props: JSONDetailProps) {
             <Grid
               data={tabData.value}
               diffData={tabDiffData.value}
-              defaultSort={sort ? sort.split(",") : undefined}
+              defaultSort={query.sort ? query.sort.split(",") : undefined}
               defaultStickyColumnName={
-                stickyColumnName ? stickyColumnName : undefined
+                query.stickyColumnName ? query.stickyColumnName : undefined
               }
               defaultFilters={decodedFilterString || {}}
               onChange={onGridChange}
