@@ -72,15 +72,16 @@ export function JSONDetail(props: JSONDetailProps) {
   const decodedFilterString = decodeFilterString(query.filters);
   const [hasMounted, setHasMounted] = React.useState(false);
 
-  const onTabChange = (tab: string) => setQuery(
-    {
-      tab,
-      sort: undefined,
-      stickyColumnName: undefined,
-      filters: undefined,
-    },
-    "replaceIn"
-  );
+  const onTabChange = (tab: string) =>
+    setQuery(
+      {
+        tab,
+        sort: undefined,
+        stickyColumnName: undefined,
+        filters: undefined,
+      },
+      "replaceIn"
+    );
 
   const onGridChange = (newState: GridState) => {
     if (!hasMounted) {
@@ -107,6 +108,9 @@ export function JSONDetail(props: JSONDetailProps) {
       "replaceIn"
     );
   }, [filename]);
+
+  const date = new Date().toDateString();
+  const downloadFilename = `flat-data--${date}-${filename}`;
 
   if (queryResult.status === "loading") {
     return <LoadingState text="Loading data..." />;
@@ -175,6 +179,7 @@ export function JSONDetail(props: JSONDetailProps) {
                 query.stickyColumnName ? query.stickyColumnName : undefined
               }
               defaultFilters={decodedFilterString || {}}
+              downloadFilename={downloadFilename}
               onChange={onGridChange}
             />
           </div>
