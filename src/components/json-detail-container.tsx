@@ -109,8 +109,11 @@ export function JSONDetail(props: JSONDetailProps) {
     );
   }, [filename]);
 
-  const date = new Date().toDateString();
-  const downloadFilename = `flat-data--${date}-${filename}`;
+  const date = new Date().toLocaleDateString();
+  const downloadFilename = `${owner}_${name}__${filename}__${date}`.replace(
+    /\./g,
+    "-"
+  );
 
   if (queryResult.status === "loading") {
     return <LoadingState text="Loading data..." />;
