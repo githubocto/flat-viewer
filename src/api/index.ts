@@ -1,3 +1,4 @@
+import flatten from "flat";
 import wretch from "wretch";
 import { Endpoints } from "@octokit/types";
 import store from "store2";
@@ -125,11 +126,71 @@ export function fetchCommits(params: FileParams) {
     });
 }
 
+const handleJSONOrGeoJSON = (res: string): any => {
+  const parsedRes = JSON.parse(res)
+
+  // Figure out if the parsed result is either
+  // an array of GeoJSON points, or an object 
+  // with type set to specific values and a features
+  // property whose value is an array of GeoJSON points
+  const GEOMETRY_TYPES = [
+    "Point", "MultiPoint", "LineString", 
+    "MultiLineString", "Polygon", "MultiPolygon",
+  ] as const
+
+  type Geometry = {
+    type: (typeof GEOMETRY_TYPES)[number]
+    coordinates: number[] | number[][]
+  }
+
+  type Feature = {
+    type: "Feature"
+    geometry: Geometry | null
+    properties: Record<string, unknown> | null
+    [key: string]: unknown
+  }
+
+  const isGeometry = (a: any) => GEOMETRY_TYPES.includes(a.type) && a.coordinates
+
+  const isGeometryArray = (arr: any[]): arr is Geometry[] => {
+    return Array.isArray(arr) && arr.every(isGeometry)
+  }
+
+  const isFeatureArray = (arr: any[]): arr is Feature[] => {
+    return Array.isArray(arr) && arr.every(
+      a => a.type === 'Feature' && 
+      (a.geometry === null || isGeometry(a.geometry)) && 
+      a.properties !== undefined
+    )
+  }
+
+  const flattenFeature = (feature: Feature) => {
+    return flatten(feature, { safe: true })
+  }
+
+  if (isFeatureArray(parsedRes)) {
+    return parsedRes.map(flattenFeature)
+  } 
+  if (parsedRes.type === 'FeatureCollection') {
+    const { features } = parsedRes
+    if (features && isFeatureArray(features)) {
+      return features.map(flattenFeature)
+    }
+  } else if (parsedRes.type === 'GeometryCollection') {
+    const { geometries } = parsedRes
+    if (geometries && isGeometryArray(geometries)) {
+      return geometries
+    }
+  }
+
+  return parsedRes
+}
+
 export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
-  const validTypes = ["csv", "tsv", "json", "yml", "yaml"];
+  const validTypes = ["csv", "tsv", "json", "geojson", "yml", "yaml"];
   if (!validTypes.includes(fileType)) return [];
 
   return wretch()
@@ -145,8 +206,8 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       try {
         if (fileType === "csv") {
           data = csvParse(res);
-        } else if (fileType === "json") {
-          data = JSON.parse(res);
+        } else if (fileType === "json" || fileType === "geojson") {
+          data = handleJSONOrGeoJSON(res);
         } else if (fileType === "tsv") {
           data = tsvParse(res);
         } else if (fileType === "yml" || fileType === "yaml") {
