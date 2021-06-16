@@ -4,6 +4,9 @@ import { Endpoints } from "@octokit/types";
 import store from "store2";
 import YAML from "yaml";
 
+//@ts-ignore
+import wkt from "wkt";
+
 import { Repo } from "../types";
 import { csvParse, tsvParse } from "d3-dsv";
 
@@ -164,14 +167,43 @@ const handleJSONOrGeoJSON = (res: string): any => {
     )
   }
 
+  const toWkt = (geometry: Geometry | null): any => {
+    if (!geometry) {
+      return {}
+    }
+    const result = {
+      geometry: wkt.stringify(geometry)
+    }
+    if (geometry.type === 'Point') {
+      const [longitude, latitude, elevation] = geometry.coordinates
+      Object.assign(
+        result, 
+        Number.isFinite(Number(elevation)) 
+          ? { longitude, latitude, elevation }
+          : { longitude, latitude }
+      )
+    }
+    return result
+  }
+
   const flattenFeature = (feature: Feature) => {
-    return flatten(feature, { safe: true })
+    const { geometry } = feature
+    return {
+      ...flatten(feature, { safe: true }) as any,
+      ...toWkt(geometry),
+    }
+  }
+
+  const annotateGeometry = (geometry: Geometry) => {
+    return {
+      ...geometry,
+      ...toWkt(geometry),
+    }
   }
 
   if (isFeatureArray(parsedRes)) {
     return parsedRes.map(flattenFeature)
-  } 
-  if (parsedRes.type === 'FeatureCollection') {
+  } else if (parsedRes.type === 'FeatureCollection') {
     const { features } = parsedRes
     if (features && isFeatureArray(features)) {
       return features.map(flattenFeature)
@@ -179,8 +211,10 @@ const handleJSONOrGeoJSON = (res: string): any => {
   } else if (parsedRes.type === 'GeometryCollection') {
     const { geometries } = parsedRes
     if (geometries && isGeometryArray(geometries)) {
-      return geometries
+      return geometries.map(annotateGeometry)
     }
+  } else if (isGeometryArray(parsedRes)) {
+      return parsedRes.map(annotateGeometry)
   }
 
   return parsedRes

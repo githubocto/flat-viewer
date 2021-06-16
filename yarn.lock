@@ -2749,6 +2749,11 @@ warning@^4.0.2, warning@^4.0.3:
   dependencies:
     loose-envify "^1.0.0"
 
+wkt@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/wkt/-/wkt-0.1.1.tgz#8d3280cb0d7664343d8987a30c85806554618bf8"
+  integrity sha512-2vtzYZOqN0VZdtDTMDUgbpXpE+MXRdsFTiCpS08FZ4yktT9pPylVMZaLxcIqT9pRkBp5FIAGVQyJ/kJa9b8uGg==
+
 wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
