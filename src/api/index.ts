@@ -129,7 +129,7 @@ export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
-  const validTypes = ["csv", "tsv", "json", "yml", "yaml"];
+  const validTypes = ["csv", "tsv", "json", "geojson", "topojson", "yml", "yaml"];
   if (!validTypes.includes(fileType)) return [];
 
   return wretch()
@@ -145,7 +145,7 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       try {
         if (fileType === "csv") {
           data = csvParse(res);
-        } else if (fileType === "json") {
+        } else if (fileType === "json" || fileType === "geojson" || fileType === "topojson") {
           data = JSON.parse(res);
         } else if (fileType === "tsv") {
           data = tsvParse(res);
