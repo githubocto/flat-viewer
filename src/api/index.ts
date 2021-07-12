@@ -52,7 +52,7 @@ const getFilesFromRes = (res: any) => {
     .map((file: any) => file.path)
     .filter((path: string) => {
       const extension = path.split(".").pop() || "";
-      const validExtensions = ["csv", "tsv", "json", "yml", "yaml"];
+      const validExtensions = ["csv", "tsv", "json", "geojson", "topojson", "yml", "yaml"];
       return (
         validExtensions.includes(extension) &&
         !ignoredFiles.includes(path.split("/").slice(-1)[0]) &&
