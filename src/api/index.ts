@@ -145,7 +145,26 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       try {
         if (fileType === "csv") {
           data = csvParse(res);
-        } else if (fileType === "json" || fileType === "geojson" || fileType === "topojson") {
+        } else if (["geojson", "topojson"].includes(fileType) || filename.endsWith(".geo.json")) {
+          data = JSON.parse(res);
+          if (data.features) {
+            const features = data.features.map((feature: any) => {
+              let geometry = {} as Record<string, any>
+              Object.keys(feature?.geometry).forEach(key => {
+                geometry[`geometry.${key}`] = feature.geometry[key];
+              })
+              let properties = {} as Record<string, any>
+              Object.keys(feature?.properties).forEach(key => {
+                properties[`properties.${key}`] = feature.properties[key];
+              })
+              const {geometry: g, properties: p, ...restOfKeys} = feature;
+              return {...restOfKeys, ...geometry, ...properties};
+            })
+            // make features the first key of the object
+            const { features: f, ...restOfData } = data
+            data = { features, ...restOfData }
+          }
+        } else if (fileType === "json") {
           data = JSON.parse(res);
         } else if (fileType === "tsv") {
           data = tsvParse(res);
