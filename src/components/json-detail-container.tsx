@@ -98,6 +98,7 @@ export function JSONDetail(props: JSONDetailProps) {
 
   React.useEffect(() => {
     if (!hasMounted) return;
+    setHasMounted(false);
 
     setQuery(
       {
