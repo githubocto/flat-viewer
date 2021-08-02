@@ -13,7 +13,7 @@ const initialValues: Repo = {
 
 const validationSchema = object().shape({
   owner: string().required("Please enter a repository owner"),
-  name: string().required("Please enter a repository name"),
+  name: string().optional(),
 });
 
 function RepoFormComponent(props: FormikProps<Repo>) {
@@ -106,7 +106,7 @@ export function RepoForm() {
       validateOnBlur={false}
       validateOnChange={false}
       onSubmit={(values) => {
-        history.push(`/${values.owner}/${values.name}`);
+        history.push(`/${values.owner}/` + (values.name || ''))
       }}
     />
   );
