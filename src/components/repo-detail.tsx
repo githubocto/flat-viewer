@@ -49,7 +49,7 @@ export function RepoDetail(props: RepoDetailProps) {
     {
       onSuccess: (data) => {
         if (!data.length) return;
-        setFilename(filename || data[0]);
+        setFilename(filename || data[0], "replaceIn");
       },
     }
   );
@@ -73,10 +73,10 @@ export function RepoDetail(props: RepoDetailProps) {
                   duration: 4000,
                 }
               );
-              setSelectedSha(mostRecentCommitSha);
+              setSelectedSha(mostRecentCommitSha, "replaceIn");
             }
           } else {
-            setSelectedSha(mostRecentCommitSha);
+            setSelectedSha(mostRecentCommitSha, "replaceIn");
           }
         }
       },
