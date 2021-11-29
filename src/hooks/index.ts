@@ -9,8 +9,9 @@ import {
   FileParamsWithSHA,
   listCommitsResponse,
   fetchFilesFromRepo,
+  fetchOrgRepos,
 } from "../api";
-import { Repo, FlatDataTab } from "../types";
+import { Repo, FlatDataTab, Repository } from "../types";
 import React from "react";
 
 // Hooks
@@ -69,4 +70,15 @@ export function useGetFiles(
       ...config,
     }
   );
+}
+
+export function useOrgFlatRepos(
+  orgName: string,
+  config?: UseQueryOptions<Repository[]>
+) {
+  return useQuery(["org", orgName], () => fetchOrgRepos(orgName), {
+    retry: false,
+    refetchOnWindowFocus: false,
+    ...config,
+  });
 }

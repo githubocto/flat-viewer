@@ -42,7 +42,7 @@ export function JSONDetail(props: JSONDetailProps) {
           query.tab && data.find((d) => d.key === query.tab)
             ? query.tab
             : (data.find((d) => d.key) || {}).key;
-        setQuery({ tab });
+        setQuery({ tab }, "replaceIn");
       },
     }
   );
@@ -89,15 +89,19 @@ export function JSONDetail(props: JSONDetailProps) {
       return;
     }
 
-    setQuery({
-      sort: newState.sort.join(","),
-      stickyColumnName: newState.stickyColumnName,
-      filters: encodeFilterString(newState.filters),
-    });
+    setQuery(
+      {
+        sort: newState.sort.join(","),
+        stickyColumnName: newState.stickyColumnName,
+        filters: encodeFilterString(newState.filters),
+      }, 
+      "replaceIn"
+    );
   };
 
   React.useEffect(() => {
     if (!hasMounted) return;
+    setHasMounted(false);
 
     setQuery(
       {

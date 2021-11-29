@@ -6,6 +6,7 @@ import { QueryParamProvider } from "use-query-params";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { RepoDetail } from "./components/repo-detail";
+import { OrgListing } from "./components/org-listing";
 import { Home } from "./components/home";
 import { useProgressBar } from "./hooks";
 
@@ -20,6 +21,7 @@ function App() {
         <QueryParamProvider ReactRouterRoute={Route}>
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route exact path="/:org/" component={OrgListing} />
             <Route path="/:owner/:name" component={RepoDetail} />
           </Switch>
         </QueryParamProvider>

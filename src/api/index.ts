@@ -3,7 +3,7 @@ import { Endpoints } from "@octokit/types";
 import store from "store2";
 import YAML from "yaml";
 
-import { Repo } from "../types";
+import { Repo, Repository } from "../types";
 import { csvParse, tsvParse } from "d3-dsv";
 
 export type listCommitsResponse =
@@ -52,7 +52,15 @@ const getFilesFromRes = (res: any) => {
     .map((file: any) => file.path)
     .filter((path: string) => {
       const extension = path.split(".").pop() || "";
-      const validExtensions = ["csv", "tsv", "json", "yml", "yaml"];
+      const validExtensions = [
+        "csv",
+        "tsv",
+        "json",
+        "geojson",
+        "topojson",
+        "yml",
+        "yaml",
+      ];
       return (
         validExtensions.includes(extension) &&
         !ignoredFiles.includes(path.split("/").slice(-1)[0]) &&
@@ -129,7 +137,15 @@ export function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
-  const validTypes = ["csv", "tsv", "json", "yml", "yaml"];
+  const validTypes = [
+    "csv",
+    "tsv",
+    "json",
+    "geojson",
+    "topojson",
+    "yml",
+    "yaml",
+  ];
   if (!validTypes.includes(fileType)) return [];
 
   return wretch()
@@ -145,6 +161,28 @@ export function fetchDataFile(params: FileParamsWithSHA) {
       try {
         if (fileType === "csv") {
           data = csvParse(res);
+        } else if (
+          ["geojson", "topojson"].includes(fileType) ||
+          filename.endsWith(".geo.json")
+        ) {
+          data = JSON.parse(res);
+          if (data.features) {
+            const features = data.features.map((feature: any) => {
+              let geometry = {} as Record<string, any>;
+              Object.keys(feature?.geometry).forEach((key) => {
+                geometry[`geometry.${key}`] = feature.geometry[key];
+              });
+              let properties = {} as Record<string, any>;
+              Object.keys(feature?.properties).forEach((key) => {
+                properties[`properties.${key}`] = feature.properties[key];
+              });
+              const { geometry: g, properties: p, ...restOfKeys } = feature;
+              return { ...restOfKeys, ...geometry, ...properties };
+            });
+            // make features the first key of the object
+            const { features: f, ...restOfData } = data;
+            data = { features, ...restOfData };
+          }
         } else if (fileType === "json") {
           data = JSON.parse(res);
         } else if (fileType === "tsv") {
@@ -225,6 +263,16 @@ export function fetchDataFile(params: FileParamsWithSHA) {
         },
       ];
     });
+}
+
+export async function fetchOrgRepos(orgName: string) {
+  const res = await githubWretch
+    .url(`/search/repositories`)
+    .query({ q: `topic:flat-data org:${orgName}`, per_page: 100 })
+    .get()
+    .json();
+
+  return res.items;
 }
 
 const stringifyValue = (data: any) => {
