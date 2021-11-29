@@ -81,7 +81,7 @@ function RepoFormComponent(props: FormikProps<Repo>) {
       </div>
       <div>
         <div className="text-left flex items-center space-x-2">
-          <p className="text-gray-500 text-sm">Start with example:</p>
+          <p className="text-gray-500 text-sm">Start with an example:</p>
           <div className="flex items-center space-x-2">
             <Link
               to="/githubocto/flat-demo-bitcoin-price"
@@ -91,6 +91,9 @@ function RepoFormComponent(props: FormikProps<Repo>) {
             </Link>
           </div>
         </div>
+      </div>
+      <div className="mt-3 text-center text-gray-500 text-sm">
+        or read <a href="https://next.github.com/projects/flat-data" className="underline">the writeup</a>
       </div>
     </div>
   );
