@@ -133,7 +133,7 @@ export function fetchCommits(params: FileParams) {
     });
 }
 
-export function fetchDataFile(params: FileParamsWithSHA) {
+export async function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
   const fileType = filename.split(".").pop() || "";
@@ -147,122 +147,134 @@ export function fetchDataFile(params: FileParamsWithSHA) {
     "yaml",
   ];
   if (!validTypes.includes(fileType)) return [];
+  // const githubWretch = cachedPat
+  //   ? wretch(
+  //       `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
+  //     ).auth(`token ${cachedPat}`)
+  //   :
 
-  return wretch()
-    .url(
-      `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
-    )
+  let res;
+  const text = await wretch(
+    `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
+  )
     .get()
-    .notFound(() => {
-      throw new Error("Data file not found");
+    .notFound(async () => {
+      if (cachedPat) {
+        const data = await githubWretch
+          .url(`/repos/${owner}/${name}/contents/${filename}`)
+          .get()
+          .json();
+        const content = atob(data.content);
+        return content;
+      } else {
+        throw new Error("Data file not found");
+      }
     })
-    .text((res) => {
-      let data: any;
-      try {
-        if (fileType === "csv") {
-          data = csvParse(res);
-        } else if (
-          ["geojson", "topojson"].includes(fileType) ||
-          filename.endsWith(".geo.json")
-        ) {
-          data = JSON.parse(res);
-          if (data.features) {
-            const features = data.features.map((feature: any) => {
-              let geometry = {} as Record<string, any>;
-              Object.keys(feature?.geometry).forEach((key) => {
-                geometry[`geometry.${key}`] = feature.geometry[key];
-              });
-              let properties = {} as Record<string, any>;
-              Object.keys(feature?.properties).forEach((key) => {
-                properties[`properties.${key}`] = feature.properties[key];
-              });
-              const { geometry: g, properties: p, ...restOfKeys } = feature;
-              return { ...restOfKeys, ...geometry, ...properties };
-            });
-            // make features the first key of the object
-            const { features: f, ...restOfData } = data;
-            data = { features, ...restOfData };
-          }
-        } else if (fileType === "json") {
-          data = JSON.parse(res);
-        } else if (fileType === "tsv") {
-          data = tsvParse(res);
-        } else if (fileType === "yml" || fileType === "yaml") {
-          data = YAML.parse(res);
-        } else {
-          return [
-            {
-              invalidValue: stringifyValue(res),
-            },
-          ];
-        }
-      } catch (e) {
-        console.log(e);
-        return [
-          {
-            invalidValue: stringifyValue(res),
-          },
-        ];
-      }
+    .text();
 
-      if (typeof data !== "object") {
-        return [
-          {
-            invalidValue: stringifyValue(data),
-          },
-        ];
-      }
-
-      const isArray = Array.isArray(data);
-      if (isArray) {
-        return [
-          {
-            value: data,
-          },
-        ];
-      }
-
-      const keys = Object.keys(data);
-
-      const isObjectOfObjects =
-        keys.length &&
-        !Object.values(data).find(
-          (d) => typeof d !== "object" || Array.isArray(d)
-        );
-
-      if (!isObjectOfObjects)
-        return keys.map((key) => {
-          const value = data[key];
-          if (!Array.isArray(value)) {
-            return {
-              key,
-              invalidValue: stringifyValue(value),
-            };
-          }
-
-          if (typeof value[0] === "string") {
-            return {
-              key,
-              value: value.map((d) => ({ value: d })),
-            };
-          }
-
-          return {
-            key,
-            value,
-          };
+  let data: any;
+  try {
+    if (fileType === "csv") {
+      data = csvParse(text);
+    } else if (
+      ["geojson", "topojson"].includes(fileType) ||
+      filename.endsWith(".geo.json")
+    ) {
+      data = JSON.parse(text);
+      if (data.features) {
+        const features = data.features.map((feature: any) => {
+          let geometry = {} as Record<string, any>;
+          Object.keys(feature?.geometry).forEach((key) => {
+            geometry[`geometry.${key}`] = feature.geometry[key];
+          });
+          let properties = {} as Record<string, any>;
+          Object.keys(feature?.properties).forEach((key) => {
+            properties[`properties.${key}`] = feature.properties[key];
+          });
+          const { geometry: g, properties: p, ...restOfKeys } = feature;
+          return { ...restOfKeys, ...geometry, ...properties };
         });
-
-      let parsedData = <any[]>[];
-      keys.forEach((key) => {
-        parsedData = [...parsedData, { ...data[key], id: key }];
-      });
+        // make features the first key of the object
+        const { features: f, ...restOfData } = data;
+        data = { features, ...restOfData };
+      }
+    } else if (fileType === "json") {
+      data = JSON.parse(text);
+    } else if (fileType === "tsv") {
+      data = tsvParse(text);
+    } else if (fileType === "yml" || fileType === "yaml") {
+      data = YAML.parse(text);
+    } else {
       return [
         {
-          value: parsedData,
+          invalidValue: stringifyValue(text),
         },
       ];
+    }
+  } catch (e) {
+    console.log(e);
+    return [
+      {
+        invalidValue: stringifyValue(text),
+      },
+    ];
+  }
+
+  if (typeof data !== "object") {
+    return [
+      {
+        invalidValue: stringifyValue(data),
+      },
+    ];
+  }
+
+  const isArray = Array.isArray(data);
+  if (isArray) {
+    return [
+      {
+        value: data,
+      },
+    ];
+  }
+
+  const keys = Object.keys(data);
+
+  const isObjectOfObjects =
+    keys.length &&
+    !Object.values(data).find((d) => typeof d !== "object" || Array.isArray(d));
+
+  if (!isObjectOfObjects)
+    return keys.map((key) => {
+      const value = data[key];
+      if (!Array.isArray(value)) {
+        return {
+          key,
+          invalidValue: stringifyValue(value),
+        };
+      }
+
+      if (typeof value[0] === "string") {
+        return {
+          key,
+          value: value.map((d) => ({ value: d })),
+        };
+      }
+
+      return {
+        key,
+        value,
+      };
     });
+
+  let parsedData = <any[]>[];
+  keys.forEach((key) => {
+    parsedData = [...parsedData, { ...data[key], id: key }];
+  });
+  return [
+    {
+      value: parsedData,
+    },
+  ];
 }
 
 export async function fetchOrgRepos(orgName: string) {

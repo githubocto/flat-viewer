@@ -38,7 +38,7 @@ export function useDataFile(
   params: FileParamsWithSHA,
   config?: UseQueryOptions<FlatDataTab[]>
 ) {
-  return useQuery(["data", params], () => fetchDataFile(params), {
+  return useQuery(["data", params], async () => await fetchDataFile(params), {
     retry: false,
     refetchOnWindowFocus: false,
     ...config,
