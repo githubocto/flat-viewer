@@ -345,10 +345,10 @@
   dependencies:
     purgecss "^3.1.3"
 
-"@githubocto/flat-ui@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@githubocto/flat-ui/-/flat-ui-0.13.0.tgz#7f3c06544f34d01871a353e7a6d8d094194fbe9c"
-  integrity sha512-m81nWR9JzV0lVY8mcqdXwvAkIARRHFyasK4V95Fen/sgUGRgKO4DvRalY+1Hmp9y2DfTI36QoPBgmb45Hxtxpw==
+"@githubocto/flat-ui@^0.13.1":
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/@githubocto/flat-ui/-/flat-ui-0.13.1.tgz#04786bf4b342e15fa173ccab77fec5f3537c8852"
+  integrity sha512-tZiZEKoxIyA53qEEI4ODryJh41OADCehke5BN3+vjKqEsG4j7DXQ+Io6ABWJNSNi1QfLOdAHJZzTpJ4rIkSIyQ==
   dependencies:
     "@emotion/react" "^11.4.0"
     "@primer/octicons-react" "^12.1.0"
