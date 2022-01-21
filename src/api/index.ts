@@ -12,7 +12,7 @@ export type listCommitsResponse =
 const githubApiURL = `https://api.github.com`;
 const cachedPat = store.get("flat-viewer-pat");
 
-const githubWretch = cachedPat
+let githubWretch = cachedPat
   ? wretch(githubApiURL).auth(`token ${cachedPat}`)
   : wretch(githubApiURL);
 
@@ -75,6 +75,12 @@ function tryBranch(owner: string, name: string, branch: string) {
     .get()
     .notFound((e) => {
       throw new Error("File not found");
+    })
+    .error(401, () => {
+      // clear PAT
+      store.remove("flat-viewer-pat");
+      console.log("PAT expired");
+      githubWretch = wretch(githubApiURL);
     })
     .error(403, (e: any) => {
       const message = JSON.parse(e.message).message;
