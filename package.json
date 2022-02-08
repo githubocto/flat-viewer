@@ -7,7 +7,7 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "@githubocto/flat-ui": "^0.13.3",
+    "@githubocto/flat-ui": "^0.13.4",
     "@octokit/rest": "^18.3.5",
     "@popperjs/core": "^2.9.1",
     "@primer/octicons-react": "^12.1.0",
