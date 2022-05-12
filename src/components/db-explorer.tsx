@@ -6,7 +6,9 @@ import { useQuery } from "react-query";
 import { useDebounce } from "use-debounce";
 import { useRawDataFile } from "../hooks";
 import { LoadingState } from "./loading-state";
+import { ErrorState } from "./error-state";
 import { Spinner } from "./spinner";
+import Bug from "../bug.svg";
 
 interface Props {
   sha: string;
@@ -28,7 +30,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
   const { content, extension, filename, sha } = props;
   const connectionRef = useRef<duckdb.AsyncDuckDBConnection>();
   const [query, setQuery] = useState("");
-  const [debouncedQuery] = useDebounce(query, 1000);
+  const [debouncedQuery] = useDebounce(query, 500);
   const [dbStatus, setDbStatus] = useState<"error" | "idle" | "success">(
     "idle"
   );
@@ -76,16 +78,19 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
       const c = await db.connect();
       connectionRef.current = c;
 
-      if (extension === "csv") {
-        await db.registerFileText(`data.csv`, content);
-        await c.insertCSVFromPath(`data.csv`, { name: "data" });
-      } else if (extension === "json") {
-        await db.registerFileText(`data.json`, content);
-        await c.insertJSONFromPath("data.json", { name: "data" });
+      try {
+        if (extension === "csv") {
+          await db.registerFileText(`data.csv`, content);
+          await c.insertCSVFromPath(`data.csv`, { name: "data" });
+        } else if (extension === "json") {
+          await db.registerFileText(`data.json`, content);
+          await c.insertJSONFromPath("data.json", { name: "data" });
+        }
+        setDbStatus("success");
+        setQuery("select * from data");
+      } catch {
+        setDbStatus("error");
       }
-
-      setDbStatus("success");
-      setQuery("select * from data");
     };
 
     initDuckDb();
@@ -104,7 +109,11 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
       const names = content.split("\n")[0].split(",");
       return names.map((name) => name.replace(/"/g, ""));
     } else if (extension === "json") {
-      return Object.keys(JSON.parse(content)[0]);
+      try {
+        return Object.keys(JSON.parse(content)[0]);
+      } catch {
+        return [];
+      }
     } else {
       return [];
     }
@@ -113,6 +122,11 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
   return (
     <div className="flex-1 flex-shrink-0 overflow-hidden flex flex-col z-0">
       {dbStatus === "idle" && <LoadingState text="Initializing DuckDB 🦆" />}
+      {dbStatus === "error" && (
+        <ErrorState img={Bug} alt="Database initialization error">
+          Couldn't initialize DuckDB 😕
+        </ErrorState>
+      )}
       {dbStatus === "success" && (
         <>
           <div className="border-b bg-gray-50 sticky top-0 z-20">
