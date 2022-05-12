@@ -28,7 +28,7 @@ const VALID_EXTENSIONS = ["csv", "json"];
 
 function DBExplorerInner(props: DBExplorerInnerProps) {
   const { content, extension, filename, sha } = props;
-  const connectionRef = useRef<duckdb.AsyncDuckDBConnection>();
+  const connectionRef = useRef<duckdb.AsyncDuckDBConnection | null>(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebounce(query, 500);
   const [dbStatus, setDbStatus] = useState<"error" | "idle" | "success">(
@@ -98,9 +98,11 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
     return () => {
       if (connectionRef.current) {
         connectionRef.current.close();
+        connectionRef.current = null;
+        setDbStatus("idle");
       }
     };
-  }, [content]);
+  }, [content, sha, filename]);
 
   const sqlSchema = useMemo(() => {
     if (!content) return [];
