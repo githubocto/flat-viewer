@@ -1,4 +1,5 @@
 import { sql } from "@codemirror/lang-sql";
+import { Grid } from "@githubocto/flat-ui";
 import * as duckdb from "@duckdb/duckdb-wasm";
 import CodeMirror from "@uiw/react-codemirror";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -150,40 +151,28 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
             />
           </div>
           <div className="flex-1 flex flex-col h-full overflow-scroll">
-            <div className="border-b p-2 flex items-center space-x-2 sticky top-0 bg-white z-10">
-              <div>
-                <p className="text-xs uppercase tracking-widest font-medium">
-                  # Rows
-                </p>
-                {status === "loading" ? (
-                  <span className="skeleton">Loading</span>
-                ) : (
-                  <span>{data && data.numRows}</span>
-                )}
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest font-medium">
-                  # Columns
-                </p>
-                {status === "loading" ? (
-                  <span className="skeleton">Loading</span>
-                ) : (
-                  <span>{data && data.numCols}</span>
-                )}
-              </div>
-            </div>
             {status === "error" && error && (
               <div className="bg-red-50 border-b border-red-600 p-2 text-sm text-red-600">
                 {(error as Error)?.message || "An unexpected error occurred."}
               </div>
             )}
-            <div className="relative">
+            <div className="relative flex-1 h-full">
               {status === "loading" && (
                 <div className="absolute top-4 right-4 z-20">
                   <Spinner />
                 </div>
               )}
-              <pre>{JSON.stringify(data, null, 2)}</pre>
+              {data && (
+                <Grid
+                  data={data.results}
+                  diffData={undefined}
+                  defaultSort={undefined}
+                  defaultStickyColumnName={undefined}
+                  defaultFilters={{}}
+                  downloadFilename={filename}
+                  onChange={() => {}}
+                />
+              )}
             </div>
           </div>
         </>
