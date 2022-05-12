@@ -10,6 +10,7 @@ import {
   listCommitsResponse,
   fetchFilesFromRepo,
   fetchOrgRepos,
+  fetchRawDataFile,
 } from "../api";
 import { Repo, FlatDataTab, Repository } from "../types";
 import React from "react";
@@ -43,6 +44,21 @@ export function useDataFile(
     refetchOnWindowFocus: false,
     ...config,
   });
+}
+
+export function useRawDataFile(
+  params: FileParamsWithSHA,
+  config?: UseQueryOptions<string>
+) {
+  return useQuery(
+    ["raw-data", params],
+    async () => await fetchRawDataFile(params),
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      ...config,
+    }
+  );
 }
 
 nprogress.configure({ showSpinner: false });

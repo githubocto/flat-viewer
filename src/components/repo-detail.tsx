@@ -30,6 +30,7 @@ import { Picker } from "./picker";
 import { FilePicker } from "./file-picker";
 import { DisplayCommit } from "./display-commit";
 import truncate from "lodash/truncate";
+import { DBExplorer } from "./db-explorer";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
@@ -277,14 +278,20 @@ export function RepoDetail(props: RepoDetailProps) {
 
       <React.Fragment>
         {selectedSha && Boolean(filename) && filesStatus !== "error" && (
-          <JSONDetail
-            key={selectedSha}
+          <DBExplorer
+            sha={selectedSha}
             filename={filename || ""}
             owner={owner as string}
             name={name as string}
-            previousSha={selectedShaPrevious}
-            sha={selectedSha}
           />
+          // <JSONDetail
+          //   key={selectedSha}
+          //   filename={filename || ""}
+          //   owner={owner as string}
+          //   name={name as string}
+          //   previousSha={selectedShaPrevious}
+          //   sha={selectedSha}
+          // />
         )}
       </React.Fragment>
       {match &&

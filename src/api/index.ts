@@ -139,6 +139,41 @@ export function fetchCommits(params: FileParams) {
     });
 }
 
+export async function fetchRawDataFile(params: FileParamsWithSHA) {
+  const { filename, name, owner, sha } = params;
+  if (!filename) return "";
+  const fileType = filename.split(".").pop() || "";
+  const validTypes = [
+    "csv",
+    "tsv",
+    "json",
+    "geojson",
+    "topojson",
+    "yml",
+    "yaml",
+  ];
+  if (!validTypes.includes(fileType)) return "";
+  const text = await wretch(
+    `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
+  )
+    .get()
+    .notFound(async () => {
+      if (cachedPat) {
+        const data = await githubWretch
+          .url(`/repos/${owner}/${name}/contents/${filename}`)
+          .get()
+          .json();
+        const content = atob(data.content);
+        return content;
+      } else {
+        throw new Error("Data file not found");
+      }
+    })
+    .text();
+
+  return text;
+}
+
 export async function fetchDataFile(params: FileParamsWithSHA) {
   const { filename, name, owner, sha } = params;
   if (!filename) return [];
