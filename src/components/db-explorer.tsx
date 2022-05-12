@@ -1,13 +1,13 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import CodeMirror from "@uiw/react-codemirror";
 import { sql } from "@codemirror/lang-sql";
-import { useDebounce } from "use-debounce";
-
+import * as duckdb from "@duckdb/duckdb-wasm";
+import CodeMirror from "@uiw/react-codemirror";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
+import { useDebounce } from "use-debounce";
 import { useRawDataFile } from "../hooks";
 import { LoadingState } from "./loading-state";
 import { Spinner } from "./spinner";
-import * as duckdb from "@duckdb/duckdb-wasm";
+
 interface Props {
   sha: string;
   filename: string;
