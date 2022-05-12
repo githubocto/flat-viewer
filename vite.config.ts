@@ -5,7 +5,4 @@ import pluginRewriteAll from "vite-plugin-rewrite-all";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [reactRefresh(), pluginRewriteAll()],
-  optimizeDeps: {
-    exclude: ["mock-aws-s3", "aws-sdk", "nock"],
-  },
 });
