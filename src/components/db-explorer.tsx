@@ -1,10 +1,13 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { sql } from "@codemirror/lang-sql";
+import { useDebounce } from "use-debounce";
 
-import { useMutation } from "react-query";
+import { useQuery } from "react-query";
 import { useRawDataFile } from "../hooks";
 import { LoadingState } from "./loading-state";
+import { Spinner } from "./spinner";
 import * as duckdb from "@duckdb/duckdb-wasm";
-
 interface Props {
   sha: string;
   filename: string;
@@ -12,23 +15,168 @@ interface Props {
   name: string;
 }
 
-interface ExecQueryParams {
-  query: string;
+interface DBExplorerInnerProps {
+  content: string;
+  filename: string;
+  extension: string;
+  sha: string;
 }
 
-export function DBExplorer(props: Props) {
+const VALID_EXTENSIONS = ["csv", "json"];
+
+function DBExplorerInner(props: DBExplorerInnerProps) {
+  const { content, extension, filename, sha } = props;
+  const connectionRef = useRef<duckdb.AsyncDuckDBConnection>();
+  const [query, setQuery] = useState("");
+  const [debouncedQuery] = useDebounce(query, 1000);
   const [dbStatus, setDbStatus] = useState<"error" | "idle" | "success">(
     "idle"
   );
-  const connectionRef = useRef<duckdb.AsyncDuckDBConnection>();
 
-  const execQuery = async (params: ExecQueryParams) => {
-    const { query } = params;
+  const execQuery = async (query: string) => {
     if (!connectionRef.current) return;
     const queryRes = await connectionRef.current.query(query);
-    return JSON.parse(queryRes.toString());
+    const asArray = queryRes.toArray();
+    return {
+      numRows: queryRes.numRows,
+      numCols: queryRes.numCols,
+      results: asArray.map((row) => {
+        return row.toJSON();
+      }),
+    };
   };
 
+  const { data, status, error } = useQuery(
+    ["query-results", filename, sha, debouncedQuery],
+    () => execQuery(debouncedQuery),
+    {
+      refetchOnWindowFocus: false,
+      retry: false,
+    }
+  );
+
+  useEffect(() => {
+    const initDuckDb = async () => {
+      const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
+        mvp: {
+          mainModule: "/duckdb/duckdb.wasm",
+          mainWorker: "/duckdb/duckdb-browser-mvp.worker.js",
+        },
+        eh: {
+          mainModule: "/duckdb/duckdb-eh.wasm",
+          mainWorker: "/duckdb/duckdb-browser-eh.worker.js",
+        },
+      };
+      const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
+      const worker = new Worker(bundle.mainWorker!);
+      const logger = new duckdb.ConsoleLogger();
+      const db = new duckdb.AsyncDuckDB(logger, worker);
+      await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+      const c = await db.connect();
+      connectionRef.current = c;
+
+      if (extension === "csv") {
+        await db.registerFileText(`data.csv`, content);
+        await c.insertCSVFromPath(`data.csv`, { name: "data" });
+      } else if (extension === "json") {
+        await db.registerFileText(`data.json`, content);
+        await c.insertJSONFromPath("data.json", { name: "data" });
+      }
+
+      setDbStatus("success");
+      setQuery("select * from data");
+    };
+
+    initDuckDb();
+
+    return () => {
+      if (connectionRef.current) {
+        connectionRef.current.close();
+      }
+    };
+  }, [content]);
+
+  const sqlSchema = useMemo(() => {
+    if (!content) return [];
+
+    if (extension === "csv") {
+      const names = content.split("\n")[0].split(",");
+      return names.map((name) => name.replace(/"/g, ""));
+    } else if (extension === "json") {
+      return Object.keys(JSON.parse(content)[0]);
+    } else {
+      return [];
+    }
+  }, [content]);
+
+  return (
+    <div className="flex-1 flex-shrink-0 overflow-hidden flex flex-col z-0">
+      {dbStatus === "idle" && <LoadingState text="Initializing DuckDB 🦆" />}
+      {dbStatus === "success" && (
+        <>
+          <div className="border-b bg-gray-50 sticky top-0 z-20">
+            <CodeMirror
+              value={query}
+              height={"120px"}
+              className="w-full"
+              extensions={[
+                sql({
+                  defaultTable: "data",
+                  schema: {
+                    data: sqlSchema,
+                  },
+                }),
+              ]}
+              onChange={(value) => {
+                setQuery(value);
+              }}
+            />
+          </div>
+          <div className="flex-1 flex flex-col h-full overflow-scroll">
+            <div className="border-b p-2 flex items-center space-x-2 sticky top-0 bg-white z-10">
+              <div>
+                <p className="text-xs uppercase tracking-widest font-medium">
+                  # Rows
+                </p>
+                {status === "loading" ? (
+                  <span className="skeleton">Loading</span>
+                ) : (
+                  <span>{data && data.numRows}</span>
+                )}
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest font-medium">
+                  # Columns
+                </p>
+                {status === "loading" ? (
+                  <span className="skeleton">Loading</span>
+                ) : (
+                  <span>{data && data.numCols}</span>
+                )}
+              </div>
+            </div>
+            {status === "error" && error && (
+              <div className="bg-red-50 border-b border-red-600 p-2 text-sm text-red-600">
+                {(error as Error)?.message || "An unexpected error occurred."}
+              </div>
+            )}
+            <div className="relative">
+              {status === "loading" && (
+                <div className="absolute top-4 right-4 z-20">
+                  <Spinner />
+                </div>
+              )}
+              <pre>{JSON.stringify(data, null, 2)}</pre>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export function DBExplorer(props: Props) {
   const { sha, filename, owner, name } = props;
   const { data, status } = useRawDataFile(
     {
@@ -40,95 +188,21 @@ export function DBExplorer(props: Props) {
     {
       refetchOnWindowFocus: false,
       retry: false,
-      onSuccess: async (res) => {
-        if (connectionRef.current) return;
-
-        const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
-          mvp: {
-            mainModule: "/duckdb/duckdb.wasm",
-            mainWorker: "/duckdb/duckdb-browser-mvp.worker.js",
-          },
-          eh: {
-            mainModule: "/duckdb/duckdb-eh.wasm",
-            mainWorker: "/duckdb/duckdb-browser-eh.worker.js",
-          },
-        };
-        const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
-        const worker = new Worker(bundle.mainWorker!);
-        const logger = new duckdb.ConsoleLogger();
-        const db = new duckdb.AsyncDuckDB(logger, worker);
-        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
-        await db.registerFileText(`data.json`, res);
-
-        const c = await db.connect();
-        connectionRef.current = c;
-        await c.insertJSONFromPath("data.json", { name: "data" });
-        setDbStatus("success");
-      },
     }
   );
 
-  // @ts-ignore
-  const queryMutation = useMutation(execQuery);
-
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    console.log("here");
-    e.preventDefault();
-    if (!data) return;
-    // get form data
-    const form = e.target as HTMLFormElement;
-    if (!form) return;
-    const formData = new FormData(form);
-    const query = formData.get("query");
-    await queryMutation.mutateAsync({ query: query as string });
-  };
+  const extension = filename.split(".").pop() || "";
 
   return (
     <>
       {status === "loading" && <LoadingState />}
-      {status === "success" && (
-        <div className="flex flex-col h-full">
-          <div className="border-b bg-gray-50 p-4 sticky top-0">
-            <form onSubmit={handleSubmit}>
-              <div className="flex items-center space-x-2">
-                <input
-                  className="font-mono shadow-sm focus:ring-gray-500 focus:border-gray-500 block w-full sm:text-sm border-gray-300 rounded-md disabled:opacity-50 disabled:pointer-events-none"
-                  name="query"
-                  disabled={dbStatus !== "success"}
-                  placeholder="Enter query"
-                  type="text"
-                />
-                <button
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:pointer-events-none"
-                  disabled={dbStatus !== "success"}
-                  type="submit"
-                >
-                  Execute
-                </button>
-              </div>
-            </form>
-          </div>
-          <div className="flex-1 flex-shrink-0 overflow-hidden flex flex-col">
-            {dbStatus === "idle" && (
-              <LoadingState text="Initializing DuckDB 🦆" />
-            )}
-            {queryMutation.status === "loading" && <LoadingState />}
-            {queryMutation.status === "idle" && dbStatus === "success" && (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-sm text-gray-600">
-                  Run a query to get started
-                </p>
-              </div>
-            )}
-            {queryMutation.status === "success" &&
-              dbStatus === "success" &&
-              data && (
-                <pre className="overflow-auto">
-                  {JSON.stringify(queryMutation.data, null, 2)}
-                </pre>
-              )}
-          </div>
-        </div>
+      {status === "success" && data && VALID_EXTENSIONS.includes(extension) && (
+        <DBExplorerInner
+          sha={sha}
+          filename={filename}
+          extension={extension}
+          content={data}
+        />
       )}
     </>
   );
