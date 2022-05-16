@@ -1,4 +1,10 @@
 import { sql } from "@codemirror/lang-sql";
+import {
+  ErrorBoundary,
+  ErrorBoundaryProps,
+  FallbackProps,
+} from "react-error-boundary";
+
 import { Grid } from "@githubocto/flat-ui";
 import CodeMirror from "@uiw/react-codemirror";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -30,6 +36,23 @@ interface DBExplorerInnerProps {
 }
 
 const VALID_EXTENSIONS = ["csv", "json"];
+
+function ErrorFallback(props: FallbackProps) {
+  const { error, resetErrorBoundary } = props;
+  return (
+    <ErrorState img={Bug} alt={error.message}>
+      <p>{error?.message}</p>
+      <div className="mt-4">
+        <button
+          className="inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gray-900 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+          onClick={resetErrorBoundary}
+        >
+          Reset Query
+        </button>
+      </div>
+    </ErrorState>
+  );
+}
 
 function DBExplorerInner(props: DBExplorerInnerProps) {
   const { content, extension, filename, sha } = props;
@@ -163,15 +186,22 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
                 </div>
               )}
               {data && (
-                <Grid
-                  data={data.results}
-                  diffData={undefined}
-                  defaultSort={undefined}
-                  defaultStickyColumnName={undefined}
-                  defaultFilters={{}}
-                  downloadFilename={filename}
-                  onChange={() => {}}
-                />
+                <ErrorBoundary
+                  FallbackComponent={ErrorFallback}
+                  onReset={() => {
+                    setQuery(`select * from '${filenameWithoutExtension}'`);
+                  }}
+                >
+                  <Grid
+                    data={data.results}
+                    diffData={undefined}
+                    defaultSort={undefined}
+                    defaultStickyColumnName={undefined}
+                    defaultFilters={{}}
+                    downloadFilename={filename}
+                    onChange={() => {}}
+                  />
+                </ErrorBoundary>
               )}
             </div>
           </div>
