@@ -1,9 +1,5 @@
 import { sql } from "@codemirror/lang-sql";
-import {
-  ErrorBoundary,
-  ErrorBoundaryProps,
-  FallbackProps,
-} from "react-error-boundary";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 
 import { Grid } from "@githubocto/flat-ui";
 import CodeMirror from "@uiw/react-codemirror";
@@ -68,6 +64,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
     if (!connectionRef.current) return;
     const queryRes = await connectionRef.current.query(query);
     const asArray = queryRes.toArray();
+
     return {
       numRows: queryRes.numRows,
       numCols: queryRes.numCols,
@@ -109,10 +106,17 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
 
       try {
         await db.registerFileText(filename, content);
-        await c.insertCSVFromPath(filename, { name: filenameWithoutExtension });
+        extension === "csv"
+          ? await c.insertCSVFromPath(filename, {
+              name: filenameWithoutExtension,
+            })
+          : await c.insertJSONFromPath(filename, {
+              name: filenameWithoutExtension,
+            });
         setDbStatus("success");
         setQuery(`select * from '${filenameWithoutExtension}'`);
-      } catch {
+      } catch (e) {
+        console.error(e);
         setDbStatus("error");
       }
     };
