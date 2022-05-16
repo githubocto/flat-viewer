@@ -1,9 +1,12 @@
 import { sql } from "@codemirror/lang-sql";
-import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-
+import * as duckdb from "@duckdb/duckdb-wasm";
+import eh_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url";
+import duckdb_wasm_next from "@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url";
+import duckdb_wasm from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
 import { Grid } from "@githubocto/flat-ui";
 import CodeMirror from "@uiw/react-codemirror";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import { useQuery } from "react-query";
 import { useDebounce } from "use-debounce";
 import Bug from "../bug.svg";
@@ -11,11 +14,6 @@ import { useDataFile } from "../hooks";
 import { ErrorState } from "./error-state";
 import { LoadingState } from "./loading-state";
 import { Spinner } from "./spinner";
-
-import * as duckdb from "@duckdb/duckdb-wasm";
-import duckdb_wasm from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
-import duckdb_wasm_next from "@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url";
-import eh_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url";
 
 interface Props {
   sha: string;
@@ -80,6 +78,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
     {
       refetchOnWindowFocus: false,
       retry: false,
+      enabled: dbStatus === "success",
     }
   );
 
@@ -166,9 +165,9 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
               className="w-full"
               extensions={[
                 sql({
-                  defaultTable: "data",
+                  defaultTable: filenameWithoutExtension,
                   schema: {
-                    data: sqlSchema,
+                    [filenameWithoutExtension]: sqlSchema,
                   },
                 }),
               ]}
@@ -192,6 +191,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
               {data && (
                 <ErrorBoundary
                   FallbackComponent={ErrorFallback}
+                  resetKeys={[query, debouncedQuery]}
                   onReset={() => {
                     setQuery(`select * from '${filenameWithoutExtension}'`);
                   }}
