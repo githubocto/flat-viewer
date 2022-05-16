@@ -33,6 +33,7 @@ const VALID_EXTENSIONS = ["csv", "json"];
 
 function DBExplorerInner(props: DBExplorerInnerProps) {
   const { content, extension, filename, sha } = props;
+  const filenameWithoutExtension = filename.split(".").slice(0, -1).join(".");
   const connectionRef = useRef<duckdb.AsyncDuckDBConnection | null>(null);
   const [query, setQuery] = useState("");
   const [debouncedQuery] = useDebounce(query, 500);
@@ -84,15 +85,10 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
       connectionRef.current = c;
 
       try {
-        if (extension === "csv") {
-          await db.registerFileText(`data.csv`, content);
-          await c.insertCSVFromPath(`data.csv`, { name: "data" });
-        } else if (extension === "json") {
-          await db.registerFileText(`data.json`, content);
-          await c.insertJSONFromPath("data.json", { name: "data" });
-        }
+        await db.registerFileText(filename, content);
+        await c.insertCSVFromPath(filename, { name: filenameWithoutExtension });
         setDbStatus("success");
-        setQuery("select * from data");
+        setQuery(`select * from '${filenameWithoutExtension}'`);
       } catch {
         setDbStatus("error");
       }
