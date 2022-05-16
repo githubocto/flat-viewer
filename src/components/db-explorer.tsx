@@ -105,13 +105,20 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
 
       try {
         await db.registerFileText(filename, content);
-        extension === "csv"
-          ? await c.insertCSVFromPath(filename, {
-              name: filenameWithoutExtension,
-            })
-          : await c.insertJSONFromPath(filename, {
+        switch (extension) {
+          case "csv":
+            await c.insertCSVFromPath(filename, {
               name: filenameWithoutExtension,
             });
+            break;
+          case "json":
+            await c.insertJSONFromPath(filename, {
+              name: filenameWithoutExtension,
+            });
+            break;
+          default:
+            break;
+        }
         setDbStatus("success");
         setQuery(`select * from '${filenameWithoutExtension}'`);
       } catch (e) {
@@ -162,7 +169,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
             <CodeMirror
               value={query}
               height={"120px"}
-              className="w-full"
+              className="w-full font-mono"
               extensions={[
                 sql({
                   defaultTable: filenameWithoutExtension,
