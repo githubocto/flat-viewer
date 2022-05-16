@@ -189,7 +189,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
                 {(error as Error)?.message || "An unexpected error occurred."}
               </div>
             )}
-            <div className="relative flex-1 h-full">
+            <div className="relative flex-1 h-full sql-results">
               {status === "loading" && (
                 <div className="absolute top-4 right-4 z-20">
                   <Spinner />

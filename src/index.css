@@ -82,3 +82,7 @@ body,
     display: block;
   }
 }
+
+.sql-results .fade-up-in {
+  animation: none !important;
+}
