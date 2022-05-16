@@ -1,15 +1,15 @@
 import { sql } from "@codemirror/lang-sql";
-import { Grid } from "@githubocto/flat-ui";
 import * as duckdb from "@duckdb/duckdb-wasm";
+import { Grid } from "@githubocto/flat-ui";
 import CodeMirror from "@uiw/react-codemirror";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "react-query";
 import { useDebounce } from "use-debounce";
-import { useRawDataFile } from "../hooks";
-import { LoadingState } from "./loading-state";
-import { ErrorState } from "./error-state";
-import { Spinner } from "./spinner";
 import Bug from "../bug.svg";
+import { useDataFile } from "../hooks";
+import { ErrorState } from "./error-state";
+import { LoadingState } from "./loading-state";
+import { Spinner } from "./spinner";
 
 interface Props {
   sha: string;
@@ -183,7 +183,7 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
 
 export function DBExplorer(props: Props) {
   const { sha, filename, owner, name } = props;
-  const { data, status } = useRawDataFile(
+  const { data, status } = useDataFile(
     {
       sha,
       filename,
@@ -197,6 +197,7 @@ export function DBExplorer(props: Props) {
   );
 
   const extension = filename.split(".").pop() || "";
+  const content = data ? data[0].content : "";
 
   return (
     <>
@@ -206,7 +207,7 @@ export function DBExplorer(props: Props) {
           sha={sha}
           filename={filename}
           extension={extension}
-          content={data}
+          content={content}
         />
       )}
     </>

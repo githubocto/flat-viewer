@@ -11,6 +11,8 @@ export type Repo = {
 export interface FlatDataTab {
   key?: string;
   value?: object[];
+  // Raw file content
+  content: string;
   invalidValue?: string;
 }
 
