@@ -241,7 +241,7 @@ export function RepoDetail(props: RepoDetailProps) {
                 type="checkbox"
               />
               <span className="text-xs font-medium text-indigo-200 select-none">
-                Show SQL UI
+                SQL Console
               </span>
             </label>
           </div>
