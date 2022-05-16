@@ -1,5 +1,4 @@
 import { sql } from "@codemirror/lang-sql";
-import * as duckdb from "@duckdb/duckdb-wasm";
 import { Grid } from "@githubocto/flat-ui";
 import CodeMirror from "@uiw/react-codemirror";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -10,6 +9,11 @@ import { useDataFile } from "../hooks";
 import { ErrorState } from "./error-state";
 import { LoadingState } from "./loading-state";
 import { Spinner } from "./spinner";
+
+import * as duckdb from "@duckdb/duckdb-wasm";
+import duckdb_wasm from "@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url";
+import duckdb_wasm_next from "@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url";
+import eh_worker from "@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url";
 
 interface Props {
   sha: string;
@@ -62,12 +66,12 @@ function DBExplorerInner(props: DBExplorerInnerProps) {
     const initDuckDb = async () => {
       const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
         mvp: {
-          mainModule: "/duckdb/duckdb.wasm",
-          mainWorker: "/duckdb/duckdb-browser-mvp.worker.js",
+          mainModule: duckdb_wasm,
+          mainWorker: eh_worker,
         },
         eh: {
-          mainModule: "/duckdb/duckdb-eh.wasm",
-          mainWorker: "/duckdb/duckdb-browser-eh.worker.js",
+          mainModule: duckdb_wasm_next,
+          mainWorker: eh_worker,
         },
       };
       const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
