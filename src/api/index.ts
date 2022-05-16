@@ -1,10 +1,9 @@
-import wretch from "wretch";
 import { Endpoints } from "@octokit/types";
-import store from "store2";
-import YAML from "yaml";
-
-import { Repo, Repository } from "../types";
 import { csvParse, tsvParse } from "d3-dsv";
+import store from "store2";
+import wretch from "wretch";
+import YAML from "yaml";
+import { Repo } from "../types";
 
 export type listCommitsResponse =
   Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
@@ -153,13 +152,7 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
     "yaml",
   ];
   if (!validTypes.includes(fileType)) return [];
-  // const githubWretch = cachedPat
-  //   ? wretch(
-  //       `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
-  //     ).auth(`token ${cachedPat}`)
-  //   :
 
-  let res;
   const text = await wretch(
     `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
   )
@@ -213,14 +206,15 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
     } else {
       return [
         {
+          content: text,
           invalidValue: stringifyValue(text),
         },
       ];
     }
   } catch (e) {
-    console.log(e);
     return [
       {
+        content: text,
         invalidValue: stringifyValue(text),
       },
     ];
@@ -229,6 +223,7 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
   if (typeof data !== "object") {
     return [
       {
+        content: text,
         invalidValue: stringifyValue(data),
       },
     ];
@@ -238,6 +233,7 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
   if (isArray) {
     return [
       {
+        content: text,
         value: data,
       },
     ];
@@ -255,6 +251,7 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
       if (!Array.isArray(value)) {
         return {
           key,
+          content: text,
           invalidValue: stringifyValue(value),
         };
       }
@@ -262,12 +259,14 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
       if (typeof value[0] === "string") {
         return {
           key,
+          content: text,
           value: value.map((d) => ({ value: d })),
         };
       }
 
       return {
         key,
+        content: text,
         value,
       };
     });
@@ -278,6 +277,7 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
   });
   return [
     {
+      content: text,
       value: parsedData,
     },
   ];

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { GoThreeBars, GoX } from "react-icons/go";
 import { BsArrowRightShort } from "react-icons/bs";
@@ -8,7 +8,7 @@ import {
   DisclosureContent,
 } from "reakit/Disclosure";
 import formatDistance from "date-fns/formatDistance";
-import { useQueryParam, StringParam } from "use-query-params";
+import { useQueryParam, StringParam, BooleanParam } from "use-query-params";
 import toast, { Toaster } from "react-hot-toast";
 import { ErrorState } from "./error-state";
 import Bug from "../bug.svg";
@@ -30,12 +30,14 @@ import { Picker } from "./picker";
 import { FilePicker } from "./file-picker";
 import { DisplayCommit } from "./display-commit";
 import truncate from "lodash/truncate";
+import { DBExplorer } from "./db-explorer";
 
 interface RepoDetailProps extends RouteComponentProps<Repo> {}
 
 export function RepoDetail(props: RepoDetailProps) {
   const { match } = props;
   const { owner, name } = match.params;
+  const [showSql, setShowSql] = useQueryParam("sql", BooleanParam);
   const [filename, setFilename] = useQueryParam("filename", StringParam);
   const [selectedSha, setSelectedSha] = useQueryParam("sha", StringParam);
   const disclosure = useDisclosureState();
@@ -225,6 +227,26 @@ export function RepoDetail(props: RepoDetailProps) {
           </a>
         </div>
       )}
+
+      {Boolean(filename) && (
+        <div className="min-w-0 space-y-2">
+          <div className="mt-6 flex items-center bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 p-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md">
+            <label className="flex items-center space-x-2 w-full">
+              <input
+                checked={Boolean(showSql)}
+                onChange={(e) => {
+                  setShowSql(e.target.checked);
+                }}
+                className="text-indigo-900 hover:text-indigo-800 focus:text-indigo-800"
+                type="checkbox"
+              />
+              <span className="text-xs font-medium text-indigo-200 select-none">
+                SQL Console
+              </span>
+            </label>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -276,16 +298,26 @@ export function RepoDetail(props: RepoDetailProps) {
       </div>
 
       <React.Fragment>
-        {selectedSha && Boolean(filename) && filesStatus !== "error" && (
-          <JSONDetail
-            key={selectedSha}
-            filename={filename || ""}
-            owner={owner as string}
-            name={name as string}
-            previousSha={selectedShaPrevious}
-            sha={selectedSha}
-          />
-        )}
+        {selectedSha &&
+          Boolean(filename) &&
+          filesStatus !== "error" &&
+          (showSql ? (
+            <DBExplorer
+              sha={selectedSha}
+              filename={filename || ""}
+              owner={owner as string}
+              name={name as string}
+            />
+          ) : (
+            <JSONDetail
+              key={selectedSha}
+              filename={filename || ""}
+              owner={owner as string}
+              name={name as string}
+              previousSha={selectedShaPrevious}
+              sha={selectedSha}
+            />
+          ))}
       </React.Fragment>
       {match &&
         !(files || []).length &&

@@ -94,7 +94,7 @@ export function JSONDetail(props: JSONDetailProps) {
         sort: newState.sort.join(","),
         stickyColumnName: newState.stickyColumnName,
         filters: encodeFilterString(newState.filters),
-      }, 
+      },
       "replaceIn"
     );
   };

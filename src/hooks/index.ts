@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions, UseQueryResult } from "react-query";
+import { useQuery, UseQueryOptions } from "react-query";
 import nprogress from "nprogress";
 
 import {
@@ -27,22 +27,30 @@ export function useCommits(
   params: FileParams,
   config: UseQueryOptions<listCommitsResponse["data"]>
 ) {
-  return useQuery(["commits", params], () => fetchCommits(params), {
-    retry: false,
-    refetchOnWindowFocus: false,
-    ...config,
-  });
+  return useQuery<listCommitsResponse["data"]>(
+    ["commits", params],
+    () => fetchCommits(params),
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      ...config,
+    }
+  );
 }
 
 export function useDataFile(
   params: FileParamsWithSHA,
   config?: UseQueryOptions<FlatDataTab[]>
 ) {
-  return useQuery(["data", params], async () => await fetchDataFile(params), {
-    retry: false,
-    refetchOnWindowFocus: false,
-    ...config,
-  });
+  return useQuery<FlatDataTab[]>(
+    ["data", params],
+    async () => await fetchDataFile(params),
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      ...config,
+    }
+  );
 }
 
 nprogress.configure({ showSpinner: false });
@@ -61,7 +69,7 @@ export function useGetFiles(
   { owner, name }: Repo,
   config?: UseQueryOptions<string[]>
 ) {
-  return useQuery(
+  return useQuery<string[]>(
     ["files", owner, name],
     () => fetchFilesFromRepo({ owner, name }),
     {
@@ -76,9 +84,13 @@ export function useOrgFlatRepos(
   orgName: string,
   config?: UseQueryOptions<Repository[]>
 ) {
-  return useQuery(["org", orgName], () => fetchOrgRepos(orgName), {
-    retry: false,
-    refetchOnWindowFocus: false,
-    ...config,
-  });
+  return useQuery<Repository[]>(
+    ["org", orgName],
+    () => fetchOrgRepos(orgName),
+    {
+      retry: false,
+      refetchOnWindowFocus: false,
+      ...config,
+    }
+  );
 }
