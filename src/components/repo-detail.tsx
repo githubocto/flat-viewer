@@ -8,7 +8,7 @@ import {
   DisclosureContent,
 } from "reakit/Disclosure";
 import formatDistance from "date-fns/formatDistance";
-import { useQueryParam, StringParam } from "use-query-params";
+import { useQueryParam, StringParam, BooleanParam } from "use-query-params";
 import toast, { Toaster } from "react-hot-toast";
 import { ErrorState } from "./error-state";
 import Bug from "../bug.svg";
@@ -37,7 +37,7 @@ interface RepoDetailProps extends RouteComponentProps<Repo> {}
 export function RepoDetail(props: RepoDetailProps) {
   const { match } = props;
   const { owner, name } = match.params;
-  const [showSql, setShowSql] = useState(false);
+  const [showSql, setShowSql] = useQueryParam("sql", BooleanParam);
   const [filename, setFilename] = useQueryParam("filename", StringParam);
   const [selectedSha, setSelectedSha] = useQueryParam("sha", StringParam);
   const disclosure = useDisclosureState();
@@ -233,11 +233,11 @@ export function RepoDetail(props: RepoDetailProps) {
           <div className="mt-6 flex items-center bg-indigo-700 hover:bg-indigo-800 focus:bg-indigo-800 h-9 p-2 rounded text-white text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 w-full lg:max-w-md">
             <label className="flex items-center space-x-2 w-full">
               <input
-                checked={showSql}
+                checked={Boolean(showSql)}
                 onChange={(e) => {
                   setShowSql(e.target.checked);
                 }}
-                className="text-indigo-700 hover:text-indigo-800 focus:text-indigo-800"
+                className="text-indigo-900 hover:text-indigo-800 focus:text-indigo-800"
                 type="checkbox"
               />
               <span className="text-xs font-medium text-indigo-200 select-none">
