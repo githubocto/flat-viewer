@@ -159,24 +159,13 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
   //     ).auth(`token ${cachedPat}`)
   //   :
 
-  let res;
-  const text = await wretch(
-    `https://raw.githubusercontent.com/${owner}/${name}/${sha}/${filename}`
-  )
+  const res = await githubWretch
+    .url(`/repos/${owner}/${name}/contents/${filename}?ref=${sha}`)
     .get()
-    .notFound(async () => {
-      if (cachedPat) {
-        const data = await githubWretch
-          .url(`/repos/${owner}/${name}/contents/${filename}`)
-          .get()
-          .json();
-        const content = atob(data.content);
-        return content;
-      } else {
-        throw new Error("Data file not found");
-      }
-    })
-    .text();
+    .json();
+
+  const text =await  wretch(res.download_url).get().text()
+
 
   let data: any;
   try {
