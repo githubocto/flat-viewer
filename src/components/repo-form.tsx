@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, FormikProps, Form, Field } from "formik";
 import { object, string } from "yup";
 import { useHistory, Link } from "react-router-dom";
+
+import { exchangeAccessToken, getUser } from "../api";
+import store from 'store2';
+
 import cc from "classcat";
 
 import { Repo } from "../types";
@@ -17,6 +21,33 @@ const validationSchema = object().shape({
 });
 
 function RepoFormComponent(props: FormikProps<Repo>) {
+
+  const [user, setUser] = useState(null)
+  
+  useEffect(() => {
+    const pat = store.get("flat-viewer-pat");
+    if (!pat) {
+      let params = (new URL(document.location)).searchParams;
+      let code = params.get("code");
+      
+      exchangeAccessToken(code).then(async (token) => {
+        if (!token) {
+          return;
+        }
+        const user = await getUser(token);
+        setUser(user)
+         
+      })
+  
+    } else {
+      getUser(pat).then((user) => {
+        setUser(user)
+      });
+    }
+   
+  }, [])
+
+
   const makeFieldClass = (name: keyof Repo, index: number) =>
     cc([
       `appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:z-10 text-sm`,
@@ -33,6 +64,17 @@ function RepoFormComponent(props: FormikProps<Repo>) {
 
   return (
     <div>
+
+      <div className="mt-3 text-center text-gray-500 text-sm">
+          { !user && <a href="https://github.com/login/oauth/authorize?client_id=0a8b4cd672b5e3dd8ea5&scope=repo" className="underline">click login first</a> }
+          { user && (
+            <div className="flex flex-col items-center gap-3">
+              <img src={user.avatar_url} width="72" height="72" />
+              <h4> You are login as {user.login} </h4>
+            </div>
+          )}
+      </div>
+
       <Form className="mt-8 space-y-4">
         <div className="rounded-md shadow-sm -space-y-px">
           <div>
@@ -92,6 +134,7 @@ function RepoFormComponent(props: FormikProps<Repo>) {
           </div>
         </div>
       </div>
+
       <div className="mt-3 text-center text-gray-500 text-sm">
         or read <a href="https://next.github.com/projects/flat-data" className="underline">the writeup</a>
       </div>

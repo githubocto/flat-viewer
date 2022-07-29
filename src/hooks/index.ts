@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions, UseQueryResult } from "react-query";
 import nprogress from "nprogress";
-
+import store from 'store2';
 import {
   fetchCommits,
   fetchFlatYaml,
@@ -10,10 +10,19 @@ import {
   listCommitsResponse,
   fetchFilesFromRepo,
   fetchOrgRepos,
+  getUser,
 } from "../api";
 import { Repo, FlatDataTab, Repository } from "../types";
 import React from "react";
 
+
+export function useGetUserName() {
+  const token = store.get("flat-viewer-pat")
+  return useQuery(["user"], () => getUser(token), {
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+}
 // Hooks
 export function useFlatYaml(repo: Repo) {
   return useQuery(["flat-yaml", repo], () => fetchFlatYaml(repo), {

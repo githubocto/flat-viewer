@@ -9,13 +9,56 @@ import { csvParse, tsvParse } from "d3-dsv";
 export type listCommitsResponse =
   Endpoints["GET /repos/{owner}/{repo}/commits"]["response"];
 
-const githubApiURL = `https://api.github.com`;
-const cachedPat = store.get("flat-viewer-pat");
 
-let githubWretch = cachedPat
-  ? wretch(githubApiURL).auth(`token ${cachedPat}`)
-  : wretch(githubApiURL);
+function getGithubWretch () {
 
+  const githubApiURL = `https://api.github.com`;
+  const cachedPat = store.get("flat-viewer-pat");
+
+  let githubWretch = cachedPat
+    ? wretch(githubApiURL).auth(`token ${cachedPat}`)
+    : wretch(githubApiURL);
+  return githubWretch;
+}
+
+function toOAuthPage() {
+  return window.location.href = "https://github.com/login/oauth/authorize?client_id=0a8b4cd672b5e3dd8ea5&scope=repo"
+}
+
+export async function exchangeAccessToken(code: string) {
+  if (!code) {
+    return
+  }
+  const resp = await fetch('http://localhost:8081/apis/access_token', {
+    method: 'POST',
+    headers: {
+      'content-type': "application/json",
+    },
+    body: JSON.stringify({
+      code,
+    })
+  })
+
+  if (resp.status === 401) {
+    return toOAuthPage()
+  }
+  const {access_token: token } = await resp.json()
+
+  store.set("flat-viewer-pat", token)
+  return token
+}
+
+export async function getUser(token: string) {
+  const resp = await fetch("https://api.github.com/user", {
+    method: 'GET',
+    headers: {
+      Authorization: `token ${token}`
+    }
+  })
+
+  const userdata = await resp.json()
+  return userdata
+}
 export async function fetchFlatYaml(repo: Repo) {
   let res;
   try {
@@ -70,7 +113,7 @@ const getFilesFromRes = (res: any) => {
 };
 
 function tryBranch(owner: string, name: string, branch: string) {
-  return githubWretch
+  return getGithubWretch()
     .url(`/repos/${owner}/${name}/git/trees/${branch}?recursive=1`)
     .get()
     .notFound((e) => {
@@ -80,7 +123,8 @@ function tryBranch(owner: string, name: string, branch: string) {
       // clear PAT
       store.remove("flat-viewer-pat");
       console.log("PAT expired");
-      githubWretch = wretch(githubApiURL);
+      return toOAuthPage();
+      // githubWretch = wretch(githubApiURL);
     })
     .error(403, (e: any) => {
       const message = JSON.parse(e.message).message;
@@ -124,7 +168,7 @@ export interface FileParamsWithSHA extends FileParams {
 export function fetchCommits(params: FileParams) {
   const { name, owner, filename } = params;
 
-  return githubWretch
+  return getGithubWretch()
     .url(`/repos/${owner}/${name}/commits`)
     .query({
       path: filename,
@@ -165,8 +209,11 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
   )
     .get()
     .notFound(async () => {
+
+      const cachedPat = store.get("flat-viewer-pat");
+
       if (cachedPat) {
-        const data = await githubWretch
+        const data = await getGithubWretch()
           .url(`/repos/${owner}/${name}/contents/${filename}`)
           .get()
           .json();
@@ -284,7 +331,7 @@ export async function fetchDataFile(params: FileParamsWithSHA) {
 }
 
 export async function fetchOrgRepos(orgName: string) {
-  const res = await githubWretch
+  const res = await getGithubWretch()
     .url(`/search/repositories`)
     .query({ q: `topic:flat-data org:${orgName}`, per_page: 100 })
     .get()
