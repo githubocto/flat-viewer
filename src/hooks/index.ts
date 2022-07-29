@@ -16,13 +16,6 @@ import { Repo, FlatDataTab, Repository } from "../types";
 import React from "react";
 
 
-export function useGetUserName() {
-  const token = store.get("flat-viewer-pat")
-  return useQuery(["user"], () => getUser(token), {
-    retry: false,
-    refetchOnWindowFocus: false,
-  });
-}
 // Hooks
 export function useFlatYaml(repo: Repo) {
   return useQuery(["flat-yaml", repo], () => fetchFlatYaml(repo), {

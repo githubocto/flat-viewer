@@ -10,7 +10,6 @@ import { OrgListing } from "./components/org-listing";
 import { Home } from "./components/home";
 import { useProgressBar } from "./hooks";
 
-
 function App() {
   const isFetching = useIsFetching();
   useProgressBar(isFetching);
