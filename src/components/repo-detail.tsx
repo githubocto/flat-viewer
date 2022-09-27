@@ -240,7 +240,8 @@ export function RepoDetail(props: RepoDetailProps) {
           <div className="text-indigo-100 font-light text-sm">
             <a className="font-bold" href="/">
               Flat Viewer
-            </a> a simple tool for exploring flat data files in GitHub repositories.
+            </a>{" "}
+            a simple tool for exploring flat data files in GitHub repositories.
           </div>
           <Disclosure
             {...disclosure}
