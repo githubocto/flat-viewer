@@ -8,7 +8,7 @@ import { Repo } from "../types";
 
 const initialValues: Repo = {
   owner: "exposir",
-  name: "playground",
+  name: "liwenliang",
 };
 
 const validationSchema = object().shape({
