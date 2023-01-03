@@ -16,7 +16,7 @@ function App() {
 
   return (
     <HeadProvider>
-      <Title>Flat</Title>
+      <Title>Flat-View</Title>
       <Router>
         <QueryParamProvider ReactRouterRoute={Route}>
           <Switch>
