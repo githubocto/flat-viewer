@@ -238,8 +238,10 @@ export function RepoDetail(props: RepoDetailProps) {
       <div className="p-4 bg-indigo-600">
         <header className="flex justify-between items-center">
           <div className="text-indigo-100 font-light text-sm">
-            <strong className="font-bold">Flat Viewer</strong> a simple tool for
-            exploring flat data files in GitHub repositories.
+            <a className="font-bold" href="/">
+              Flat Viewer
+            </a>{" "}
+            a simple tool for exploring flat data files in GitHub repositories.
           </div>
           <Disclosure
             {...disclosure}

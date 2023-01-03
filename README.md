@@ -1,4 +1,4 @@
-# Flat Viewer
+# Flat 
 
 👉🏽 👉🏽 👉🏽 **Full writeup**: [Flat Data Project](https://octo.github.com/projects/flat-data) 👈🏽 👈🏽 👈🏽
 

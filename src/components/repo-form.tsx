@@ -7,8 +7,8 @@ import cc from "classcat";
 import { Repo } from "../types";
 
 const initialValues: Repo = {
-  owner: "",
-  name: "",
+  owner: "exposir",
+  name: "liwenliang",
 };
 
 const validationSchema = object().shape({
@@ -93,7 +93,13 @@ function RepoFormComponent(props: FormikProps<Repo>) {
         </div>
       </div>
       <div className="mt-3 text-center text-gray-500 text-sm">
-        or read <a href="https://next.github.com/projects/flat-data" className="underline">the writeup</a>
+        or read{" "}
+        <a
+          href="https://next.github.com/projects/flat-data"
+          className="underline"
+        >
+          the writeup
+        </a>
       </div>
     </div>
   );
@@ -109,7 +115,7 @@ export function RepoForm() {
       validateOnBlur={false}
       validateOnChange={false}
       onSubmit={(values) => {
-        history.push(`/${values.owner}/` + (values.name || ''))
+        history.push(`/${values.owner}/` + (values.name || ""));
       }}
     />
   );
